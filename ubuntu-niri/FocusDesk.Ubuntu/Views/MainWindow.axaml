@@ -1,0 +1,334 @@
+<Window x:Class="FocusDesk.Views.MainWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:FocusDesk.ViewModels"
+        xmlns:views="clr-namespace:FocusDesk.Views"
+        xmlns:models="clr-namespace:FocusDesk.Models"
+        Title="FocusDesk" Width="500" Height="740"
+        MinWidth="440" MinHeight="600"
+        WindowStartupLocation="CenterScreen"
+        Style="{StaticResource FocusDeskWindow}"
+        Icon="pack://application:,,,/Resources/AppIcon.ico"
+        Background="Transparent">
+
+    <Window.Resources>
+        <!-- Converter multi-binding per tab attiva -->
+        <Style x:Key="ActiveTabText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                    <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+                    <Setter Property="FontWeight" Value="SemiBold"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="44" ResizeBorderThickness="6" GlassFrameThickness="0" CornerRadius="0"/>
+    </WindowChrome.WindowChrome>
+
+    <!-- Sfondo con bordi arrotondati -->
+
+    <Border CornerRadius="16" ClipToBounds="True">
+        <Grid>
+            <Grid.Background>
+                <Binding Path="MainVm.CurrentMode" Converter="{StaticResource SessionTypeToBackground}"/>
+            </Grid.Background>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="44"/>   <!-- Title bar -->
+                <RowDefinition Height="*"/>    <!-- Content -->
+                <RowDefinition Height="60"/>   <!-- Bottom nav -->
+            </Grid.RowDefinitions>
+
+            <!-- ═══════════════════ TITLE BAR ═══════════════════ -->
+            <Border Grid.Row="0" Background="Transparent">
+                <Grid Margin="16,0">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        <TextBlock Text="🍅" FontSize="14" Margin="0,0,6,0"/>
+                        <TextBlock Text="FocusDesk" FontSize="13" FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextSecondary}"/>
+                        
+                        <!-- Focus Mode indicator -->
+                        <Border Margin="12,0,0,0" VerticalAlignment="Center"
+                                Background="#40E94560" CornerRadius="8" Padding="8,3"
+                                Visibility="{Binding MainVm.IsFocusModeActive, Converter={StaticResource BoolToVisibility}}">
+                            <TextBlock Text="● FOCUS" FontSize="10" FontWeight="Bold"
+                                       Foreground="{StaticResource AccentFocus}"/>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Pulsanti Windows -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" WindowChrome.IsHitTestVisibleInChrome="True">
+                        <Button Style="{StaticResource BtnIcon}" Command="{Binding MinimizeCommand, RelativeSource={RelativeSource AncestorType=Window}}">
+                            <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets, Segoe UI" Text="&#xE921;" FontSize="10"/>
+                        </Button>
+                        <Button Style="{StaticResource BtnIcon}" Command="{Binding MaximizeCommand, RelativeSource={RelativeSource AncestorType=Window}}">
+                            <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets, Segoe UI" Text="&#xE922;" FontSize="10"/>
+                        </Button>
+                        <Button Style="{StaticResource BtnIcon}" Command="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=Window}}">
+                            <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets, Segoe UI" Text="&#xE8BB;" FontSize="10"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ═══════════════════ CONTENT ═══════════════════ -->
+            <Grid Grid.Row="1">
+                <!-- TAB TIMER -->
+                <ScrollViewer x:Name="TimerTab" VerticalScrollBarVisibility="Auto"
+                              IsVisible="True">
+                    <StackPanel Margin="24,8,24,24">
+
+                        <!-- Mode selector -->
+                        <Border Background="{StaticResource BgCard}" CornerRadius="12"
+                                Padding="4" Margin="0,0,0,24">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" Command="{Binding MainVm.SwitchModeCommand}" CommandParameter="Focus">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource BtnModeTab}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding MainVm.CurrentMode}" Value="Focus">
+                                                    <Setter Property="Background" Value="{StaticResource AccentFocus}"/>
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                    <TextBlock Text="🍅 Pomodoro" HorizontalAlignment="Center" FontSize="12" FontWeight="SemiBold"/>
+                                </Button>
+                                
+                                <Button Grid.Column="1" Command="{Binding MainVm.SwitchModeCommand}" CommandParameter="PausaBreve">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource BtnModeTab}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding MainVm.CurrentMode}" Value="PausaBreve">
+                                                    <Setter Property="Background" Value="{StaticResource AccentBreakS}"/>
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                    <TextBlock Text="☕ Pausa Breve" HorizontalAlignment="Center" FontSize="12" FontWeight="SemiBold"/>
+                                </Button>
+                                
+                                <Button Grid.Column="2" Command="{Binding MainVm.SwitchModeCommand}" CommandParameter="PausaLunga">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource BtnModeTab}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding MainVm.CurrentMode}" Value="PausaLunga">
+                                                    <Setter Property="Background" Value="{StaticResource AccentBreakL}"/>
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                    <TextBlock Text="🌙 Pausa Lunga" HorizontalAlignment="Center" FontSize="12" FontWeight="SemiBold"/>
+                                </Button>
+                            </Grid>
+                        </Border>
+
+                        <!-- Timer circolare -->
+                        <Grid HorizontalAlignment="Center" Width="220" Height="220"
+                              Margin="0,0,0,20">
+                            <!-- Cerchio sfondo -->
+                            <Ellipse Width="220" Height="220" StrokeThickness="10"
+                                     Stroke="{StaticResource BgElevated}" Fill="Transparent"/>
+                            <!-- Cerchio progresso -->
+                            <Ellipse x:Name="ProgressRing" Width="220" Height="220"
+                                     StrokeThickness="10" Fill="Transparent"
+                                     Stroke="{Binding MainVm.CurrentMode, Converter={StaticResource SessionTypeToColor}}"
+                                     RenderTransformOrigin="0.5,0.5">
+                                <Ellipse.RenderTransform>
+                                    <RotateTransform Angle="-90"/>
+                                </Ellipse.RenderTransform>
+                                <Ellipse.StrokeDashArray>
+                                    <DoubleCollection>502,502</DoubleCollection>
+                                </Ellipse.StrokeDashArray>
+                                <Ellipse.StrokeDashOffset>0</Ellipse.StrokeDashOffset>
+                            </Ellipse>
+
+                            <!-- Timer text al centro -->
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <TextBlock Text="{Binding MainVm.TimerDisplay}"
+                                           FontSize="52" FontWeight="Bold"
+                                           Foreground="{StaticResource TextPrimary}"
+                                           HorizontalAlignment="Center"
+                                           FontFamily="Segoe UI Light"/>
+                                <TextBlock HorizontalAlignment="Center" FontSize="11"
+                                           Foreground="{StaticResource TextSecondary}" Margin="0,4,0,0">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Text" Value="Pomodoro"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding MainVm.CurrentMode}" Value="PausaBreve">
+                                                    <Setter Property="Text" Value="Pausa Breve"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding MainVm.CurrentMode}" Value="PausaLunga">
+                                                    <Setter Property="Text" Value="Pausa Lunga"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Contatore sessioni ciclo -->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"
+                                    Margin="0,0,0,24">
+                            <TextBlock Text="🍅" FontSize="16" Margin="3,0"/>
+                            <TextBlock Text="{Binding MainVm.SessionsDoneToday}"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       FontSize="13" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                            <TextBlock Text=" pomodori oggi"
+                                       Foreground="{StaticResource TextMuted}"
+                                       FontSize="13" VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <!-- Bottoni controllo timer -->
+                        <StackPanel HorizontalAlignment="Center" Margin="0,0,0,16">
+                            <Button Style="{StaticResource BtnPrimary}"
+                                    Content="{Binding MainVm.StartButtonText}"
+                                    Command="{Binding MainVm.ToggleTimerCommand}"
+                                    MinWidth="180" Margin="0,0,0,12"/>
+                            <Button Style="{StaticResource BtnGhost}"
+                                    Content="⟳ Reset" HorizontalAlignment="Center"
+                                    Command="{Binding MainVm.ResetTimerCommand}"/>
+                        </StackPanel>
+
+                        <Separator/>
+
+                        <!-- Task corrente -->
+                        <TextBlock Text="TASK CORRENTE" FontSize="10" FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextMuted}" Margin="0,8,0,10"/>
+
+                        <Border Style="{StaticResource Card}" Padding="16">
+                            <Grid>
+                                <ComboBox ItemsSource="{Binding MainVm.Tasks}"
+                                          SelectedItem="{Binding MainVm.SelectedTask, Mode=TwoWay}"
+                                          DisplayMemberPath="Title"
+                                          Visibility="{Binding MainVm.SelectedTask, Converter={StaticResource InverseBoolToVisibility}}"
+                                          Margin="0,0,0,0" Height="28" VerticalContentAlignment="Center"/>
+                                <StackPanel Visibility="{Binding MainVm.SelectedTask, Converter={StaticResource BoolToVisibility}}">
+                                    <TextBlock Text="{Binding MainVm.SelectedTask.Title}"
+                                               FontSize="14" FontWeight="SemiBold"
+                                               Foreground="{StaticResource TextPrimary}"
+                                               TextWrapping="Wrap"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                        <TextBlock FontSize="12" Foreground="{StaticResource TextSecondary}">
+                                            <TextBlock.Text>
+                                                <MultiBinding Converter="{StaticResource PomodoroCount}">
+                                                    <Binding Path="MainVm.SelectedTask.CompletedPomodoros"/>
+                                                    <Binding Path="MainVm.SelectedTask.EstimatedPomodoros"/>
+                                                </MultiBinding>
+                                            </TextBlock.Text>
+                                        </TextBlock>
+                                        <Button Style="{StaticResource BtnGhost}" Content="✕ Cambia/Deseleziona"
+                                                Command="{Binding MainVm.SelectTaskCommand}"
+                                                CommandParameter="{x:Null}"
+                                                Padding="8,4" FontSize="11" Margin="12,0,0,0"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- Focus Mode button -->
+                        <Border Margin="0,16,0,0" CornerRadius="12" Padding="1"
+                                HorizontalAlignment="Stretch">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Color="#E94560" Offset="0"/>
+                                    <GradientStop Color="#8B1A7E" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Button Background="{StaticResource BgCard}"
+                                    Foreground="{StaticResource TextPrimary}"
+                                    FontSize="14" FontWeight="SemiBold"
+                                    Command="{Binding MainVm.ToggleFocusModeCommand}"
+                                    Content="{Binding MainVm.FocusModeButtonText}"
+                                    BorderThickness="0" Padding="0,14"
+                                    Cursor="Hand" HorizontalAlignment="Stretch">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                                                CornerRadius="11" Padding="{TemplateBinding Padding}">
+                                            <ContentPresenter HorizontalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource BgElevated}"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+                        </Border>
+
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- TAB ATTIVITÀ -->
+                <views:TasksView x:Name="TasksTab" IsVisible="False"
+                                 DataContext="{Binding TasksVm}"/>
+
+                <!-- TAB STATISTICHE -->
+                <views:StatsView x:Name="StatsTab" IsVisible="False"
+                                 DataContext="{Binding StatsVm}"/>
+
+                <!-- TAB IMPOSTAZIONI -->
+                <views:SettingsView x:Name="SettingsTab" IsVisible="False"
+                                    DataContext="{Binding SettingsVm}"/>
+            </Grid>
+
+            <!-- ═══════════════════ BOTTOM NAV ═══════════════════ -->
+            <Border Grid.Row="2" Background="{StaticResource BgCard}"
+                    BorderBrush="{StaticResource BorderColor}" BorderThickness="0,1,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0" x:Name="NavTimer" Style="{StaticResource BtnNav}"
+                            Click="NavTimer_Click">
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                            <TextBlock Text="⏱" FontSize="20" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Timer" FontSize="10" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Grid.Column="1" x:Name="NavTasks" Style="{StaticResource BtnNav}"
+                            Click="NavTasks_Click">
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                            <TextBlock Text="✅" FontSize="20" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Attività" FontSize="10" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Grid.Column="2" x:Name="NavStats" Style="{StaticResource BtnNav}"
+                            Click="NavStats_Click">
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                            <TextBlock Text="📊" FontSize="20" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Statistiche" FontSize="10" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Grid.Column="3" x:Name="NavSettings" Style="{StaticResource BtnNav}"
+                            Click="NavSettings_Click">
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                            <TextBlock Text="⚙️" FontSize="20" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Impostazioni" FontSize="10" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Border>
+
+        </Grid>
+    </Border>
+</Window>

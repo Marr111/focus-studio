@@ -1,0 +1,53 @@
+<Window x:Class="FocusDesk.Views.AppSelectorWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Seleziona Applicazione" Height="500" Width="450"
+        WindowStartupLocation="CenterOwner"
+        Icon="pack://application:,,,/Resources/AppIcon.ico"
+        Background="#1A1A2E" Foreground="#EAEAEA">
+    
+    <Window.Resources>
+        <ResourceDictionary Source="/Resources/Styles/Theme.xaml"/>
+    </Window.Resources>
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <TextBlock Grid.Row="0" Text="Seleziona Programma" FontSize="18" FontWeight="Bold" Margin="0,0,0,4"/>
+        <TextBlock Grid.Row="1" Margin="0,0,0,12" Text="Caricamento di tutti i programmi (può richiedere qualche secondo)..."
+                   Foreground="#A0A0B8" TextWrapping="Wrap" FontSize="12" x:Name="LoadingText"/>
+        
+        <TextBox Grid.Row="2" x:Name="SearchBox" TextChanged="SearchBox_TextChanged"
+                 Style="{StaticResource InputField}" Margin="0,0,0,12" IsVisible="False"
+                 Tag="Cerca programma..."/>
+                   
+        <ListBox x:Name="AppsList" Grid.Row="3" Background="#16213E" BorderBrush="#2A2A4A"
+                 Foreground="#EAEAEA" ScrollViewer.VerticalScrollBarVisibility="Auto" IsVisible="False"
+                 VirtualizingPanel.IsVirtualizing="True">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal" Margin="4,8">
+                        <Image Source="{Binding ExecutablePath, Converter={StaticResource ExePathToIcon}}" Width="32" Height="32" Margin="0,0,12,0"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="14"/>
+                            <TextBlock Text="{Binding ExecutablePath}" FontSize="10" Foreground="#606080"/>
+                        </StackPanel>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+            <Button Content="Annulla" Click="BtnCancel_Click" Margin="0,0,8,0" Padding="16,6"
+                    Background="Transparent" Foreground="#A0A0B8" BorderBrush="#2A2A4A" BorderThickness="1" Cursor="Hand"/>
+            <Button Content="Aggiungi" Click="BtnSelect_Click" Padding="16,6"
+                    Background="#E94560" Foreground="White" BorderThickness="0" Cursor="Hand"/>
+        </StackPanel>
+    </Grid>
+</Window>

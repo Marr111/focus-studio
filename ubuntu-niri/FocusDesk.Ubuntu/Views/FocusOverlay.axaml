@@ -1,0 +1,92 @@
+<Window x:Class="FocusDesk.Views.FocusOverlay"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="FocusDesk — Focus Mode"
+        WindowState="Maximized"
+        WindowStyle="None"
+        AllowsTransparency="False"
+        ResizeMode="NoResize">
+
+    <Window.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#0D0D1A" Offset="0"/>
+            <GradientStop Color="#1A1A2E" Offset="1"/>
+        </LinearGradientBrush>
+    </Window.Background>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>     <!-- Area principale -->
+            <RowDefinition Height="Auto"/>  <!-- Dock bottom -->
+        </Grid.RowDefinitions>
+
+        <!-- Area centrale: timer + motivazione -->
+        <StackPanel Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <!-- Logo -->
+            <TextBlock Text="🍅" FontSize="48" HorizontalAlignment="Center" Margin="0,0,0,16"/>
+
+            <!-- Timer display -->
+            <TextBlock x:Name="TimerDisplay" Text="25:00" FontSize="96" FontWeight="Light"
+                       Foreground="White" HorizontalAlignment="Center"
+                       FontFamily="Segoe UI Light"/>
+
+            <TextBlock Text="FOCUS MODE ATTIVA" FontSize="13" FontWeight="SemiBold"
+                       Foreground="#80FFFFFF" HorizontalAlignment="Center"
+                       Margin="0,8,0,0"/>
+
+            <!-- Progress bar lineare -->
+            <Border Width="400" Height="4" CornerRadius="2" Background="#20FFFFFF" Margin="0,24,0,0">
+                <Border x:Name="ProgressBar" HorizontalAlignment="Left" Height="4"
+                        CornerRadius="2" Width="400">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#E94560" Offset="0"/>
+                            <GradientStop Color="#FF8B6B" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                </Border>
+            </Border>
+
+            <!-- Citazione motivazionale -->
+            <TextBlock x:Name="MotivationText"
+                       Text="&quot;Il segreto per andare avanti è iniziare.&quot;"
+                       FontSize="15" FontStyle="Italic"
+                       Foreground="#60FFFFFF" HorizontalAlignment="Center"
+                       Margin="0,32,0,0" MaxWidth="500" TextAlignment="Center"
+                       TextWrapping="Wrap"/>
+        </StackPanel>
+
+        <!-- DOCK BOTTOM: App whitelisted -->
+        <Border Grid.Row="1" Background="#15FFFFFF" Padding="0,12">
+            <StackPanel>
+                <TextBlock Text="APP DISPONIBILI" FontSize="10" FontWeight="SemiBold"
+                           Foreground="#50FFFFFF" HorizontalAlignment="Center"
+                           Margin="0,0,0,10"/>
+                <StackPanel x:Name="AppDock" Orientation="Horizontal"
+                            HorizontalAlignment="Center"/>
+
+                <!-- Bottone esci -->
+                <Button Content="✕ Esci da Focus Mode" Margin="0,12,0,0"
+                        HorizontalAlignment="Center"
+                        Foreground="#60FFFFFF" FontSize="12"
+                        Background="Transparent" BorderThickness="0"
+                        Cursor="Hand" Click="ExitFocusMode_Click">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="Bd" Background="Transparent"
+                                    BorderBrush="#30FFFFFF" BorderThickness="1"
+                                    CornerRadius="8" Padding="16,6">
+                                <ContentPresenter/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="#20FFFFFF"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>
