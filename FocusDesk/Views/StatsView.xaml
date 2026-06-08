@@ -1,0 +1,208 @@
+<UserControl x:Class="FocusDesk.Views.StatsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
+             Background="Transparent">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="24">
+
+            <!-- Header -->
+            <Grid Margin="0,0,0,20">
+                <TextBlock Text="Statistiche" FontSize="22" FontWeight="Bold"
+                           Foreground="{StaticResource TextPrimary}"/>
+                <Button HorizontalAlignment="Right" Style="{StaticResource BtnGhost}"
+                        Content="↻ Aggiorna" Command="{Binding RefreshCommand}"
+                        Padding="12,6" FontSize="12"/>
+            </Grid>
+
+            <!-- Stat Cards (2x2 grid) -->
+            <Grid Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="8"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Oggi -->
+                <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="🍅 OGGI" FontSize="10" FontWeight="SemiBold"
+                                   Foreground="{StaticResource AccentFocus}"/>
+                        <TextBlock Text="{Binding TodaySessions}" FontSize="36" FontWeight="Bold"
+                                   Foreground="{StaticResource TextPrimary}" Margin="0,4,0,0"/>
+                        <TextBlock Foreground="{StaticResource TextMuted}" FontSize="12">
+                            <Run Text="{Binding TodayMinutes}"/>
+                            <Run Text=" minuti focus"/>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+                <!-- Settimana -->
+                <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="📅 SETTIMANA" FontSize="10" FontWeight="SemiBold"
+                                   Foreground="{StaticResource AccentBreakS}"/>
+                        <TextBlock Text="{Binding WeekSessions}" FontSize="36" FontWeight="Bold"
+                                   Foreground="{StaticResource TextPrimary}" Margin="0,4,0,0"/>
+                        <TextBlock Text="pomodori" Foreground="{StaticResource TextMuted}" FontSize="12"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Streak -->
+                <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="🔥 STREAK" FontSize="10" FontWeight="SemiBold"
+                                   Foreground="#FF8C42"/>
+                        <TextBlock Text="{Binding StreakDays}" FontSize="36" FontWeight="Bold"
+                                   Foreground="{StaticResource TextPrimary}" Margin="0,4,0,0"/>
+                        <TextBlock Text="giorni consecutivi" Foreground="{StaticResource TextMuted}" FontSize="12"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Totale -->
+                <Border Grid.Row="2" Grid.Column="2" Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="🏆 TOTALE" FontSize="10" FontWeight="SemiBold"
+                                   Foreground="{StaticResource AccentBreakL}"/>
+                        <TextBlock Text="{Binding TotalSessions}" FontSize="36" FontWeight="Bold"
+                                   Foreground="{StaticResource TextPrimary}" Margin="0,4,0,0"/>
+                        <TextBlock Text="pomodori completati" Foreground="{StaticResource TextMuted}" FontSize="12"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Aggiunta manuale sessioni -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,20">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,16,0">
+                        <TextBlock Text="Aggiungi Pomodori (Offline)" FontSize="14" FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextPrimary}" Margin="0,0,0,4"/>
+                        <TextBlock Text="Hai completato sessioni extra? Aggiungile qui." 
+                                   Foreground="{StaticResource TextMuted}" FontSize="11" TextWrapping="Wrap"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBox Style="{StaticResource InputField}" Text="{Binding ManualSessionCount, UpdateSourceTrigger=PropertyChanged}" 
+                                 Width="40" TextAlignment="Center" Margin="0,0,8,0" Padding="8,4"/>
+                        <DatePicker SelectedDate="{Binding ManualSessionDate}" 
+                                    Width="100" Margin="0,0,8,0" VerticalAlignment="Center"
+                                    Background="Transparent" Foreground="Black"/>
+                        <Button Style="{StaticResource BtnPrimary}" Content="➕" 
+                                Command="{Binding AddManualSessionsCommand}" 
+                                Padding="12,4" FontSize="12" MinWidth="40"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Grafico settimanale -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="Ultimi 7 giorni" FontSize="14" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimary}" Margin="0,0,0,16"/>
+                    <lvc:CartesianChart Height="180"
+                                        Series="{Binding WeeklySeries}"
+                                        XAxes="{Binding WeeklyXAxes}"
+                                        YAxes="{Binding WeeklyYAxes}"
+                                        Background="Transparent"
+                                        AnimationsSpeed="0:0:0.4"
+                                        EasingFunction="{x:Null}"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Grafico orario (Ultimi 30 giorni) -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="Orario Sessioni (Ultimi 30 giorni)" FontSize="14" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimary}" Margin="0,0,0,16"/>
+                    <lvc:CartesianChart Height="180"
+                                        Series="{Binding HourlySeries}"
+                                        XAxes="{Binding HourlyXAxes}"
+                                        YAxes="{Binding HourlyYAxes}"
+                                        Background="Transparent"
+                                        AnimationsSpeed="0:0:0.4"
+                                        EasingFunction="{x:Null}"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Grafico orario (Di Sempre) -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="Orari Più Produttivi (Di Sempre)" FontSize="14" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimary}" Margin="0,0,0,16"/>
+                    <lvc:CartesianChart Height="180"
+                                        Series="{Binding AllTimeHourlySeries}"
+                                        XAxes="{Binding AllTimeHourlyXAxes}"
+                                        YAxes="{Binding AllTimeHourlyYAxes}"
+                                        Background="Transparent"
+                                        AnimationsSpeed="0:0:0.4"
+                                        EasingFunction="{x:Null}"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Heatmap 30 giorni -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="Ultimi 30 giorni" FontSize="14" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimary}" Margin="0,0,0,12"/>
+                    <ItemsControl ItemsSource="{Binding HeatmapDays}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Width="28" Height="28" CornerRadius="4" Margin="2"
+                                        Background="{Binding Sessions, Converter={StaticResource HeatmapColor}}"
+                                        Cursor="Hand">
+                                    <Border.ToolTip>
+                                        <ToolTip>
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Date, StringFormat='ddd dd MMM'}"
+                                                           FontWeight="SemiBold"/>
+                                                <TextBlock>
+                                                    <Run Text="{Binding Sessions}"/>
+                                                    <Run Text=" pomodori"/>
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </ToolTip>
+                                    </Border.ToolTip>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- Legenda -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+                        <TextBlock Text="Meno" FontSize="11" Foreground="{StaticResource TextMuted}"
+                                   VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <Border Width="12" Height="12" CornerRadius="2" Margin="2,0"
+                                Background="#21213A"/>
+                        <Border Width="12" Height="12" CornerRadius="2" Margin="2,0"
+                                Background="#7B1A2B"/>
+                        <Border Width="12" Height="12" CornerRadius="2" Margin="2,0"
+                                Background="#AD263D"/>
+                        <Border Width="12" Height="12" CornerRadius="2" Margin="2,0"
+                                Background="#D4334E"/>
+                        <Border Width="12" Height="12" CornerRadius="2" Margin="2,0"
+                                Background="#E94560"/>
+                        <TextBlock Text="Più" FontSize="11" Foreground="{StaticResource TextMuted}"
+                                   VerticalAlignment="Center" Margin="6,0,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
