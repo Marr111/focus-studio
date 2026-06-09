@@ -19,6 +19,8 @@ public partial class App : Application
                 .AddDefaultMappers()
                 .AddDarkTheme());
 
+        System.Threading.Tasks.Task.Run(async () => await FocusDesk.Services.GoogleDriveSyncService.DownloadDbAsync()).Wait();
+
         // Inizializza e migra il database
         using var db = new AppDbContext();
         db.Database.Migrate();

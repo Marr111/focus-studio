@@ -15,6 +15,8 @@ public partial class App : Application
     {
         AvaloniaXamlLoader.Load(this);
 
+        System.Threading.Tasks.Task.Run(async () => await FocusDesk.Ubuntu.Services.GoogleDriveSyncService.DownloadDbAsync()).Wait();
+
         using var db = new FocusDesk.Data.AppDbContext();
         db.Database.EnsureCreated();
     }

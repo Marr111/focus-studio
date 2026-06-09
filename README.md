@@ -40,3 +40,38 @@ Spostati nella cartella `ubuntu` ed esegui:
 cd ubuntu/FocusDesk.Ubuntu
 dotnet build
 ```
+
+## Sincronizzazione Dati (Google Drive)
+
+FocusDesk supporta la sincronizzazione automatica dello storico delle sessioni tra diversi computer (es. Windows e Ubuntu) appoggiandosi a Google Drive. Il sistema utilizza internamente **Rclone** per trasferire i dati in modo invisibile, senza richiedere l'uso della Google Cloud Console.
+
+### Meccanismo
+L'applicazione gestisce in totale autonomia il file `focusdesk.db`. La sincronizzazione avviene così:
+- **Download all'avvio**: Prima ancora di caricare l'interfaccia, l'app interroga Drive e scarica il database più aggiornato in locale.
+- **Upload al salvataggio**: Ogni volta che viene completata un'azione (Pomodoro terminato, task aggiornato, ecc.), i cambiamenti vengono salvati localmente e subito dopo ricaricati su Google Drive in background.
+- **Prima esecuzione sicura**: Se la cartella Drive è vuota ma in locale possiedi già dei salvataggi, il sistema carica la versione locale su Drive anziché sovrascriverla o perderla.
+
+### Configurazione di Rclone
+Per far sì che l'applicazione possa comunicare con Drive, devi configurare `rclone` sul tuo PC creando un collegamento (remote) chiamato rigorosamente **`gdrive`**.
+
+#### 1. Installazione
+- **Ubuntu/Linux**: Esegui `sudo apt install rclone` dal terminale.
+- **Windows**: Scaricalo dal [sito ufficiale](https://rclone.org/) oppure, da PowerShell, esegui `winget install Rclone.Rclone`.
+
+#### 2. Configurazione Rapida
+Apri il terminale (o PowerShell) e avvia la procedura guidata con:
+```bash
+rclone config
+```
+Poi segui questi passaggi:
+1. Premi **`n`** per creare un "New remote".
+2. Chiamalo esattamente: **`gdrive`** e premi Invio.
+3. Seleziona **Google Drive** dalla lista proposta (digita il numero corrispondente, ad es. `18` o la parola `drive`).
+4. Lascia vuoti sia `client_id` che `client_secret` (premi Invio).
+5. Alla richiesta dello **"Scope"**, digita **`1`** (Full access) per permettere la scrittura sulla tua cartella.
+6. Salta le configurazioni avanzate premendo Invio.
+7. Alla domanda `Use auto config?`, rispondi **`y`**. Si aprirà il browser: accedi col tuo account Google e clicca **Consenti**.
+8. Alla richiesta `Configure this as a Shared Drive (Team Drive)?`, rispondi **`n`**.
+9. Conferma il riepilogo con **`y`** e, infine, premi **`q`** per uscire ("Quit config").
+
+Tutto pronto! Ora l'app si sincronizzerà in modo invisibile e automatico ad ogni utilizzo.
