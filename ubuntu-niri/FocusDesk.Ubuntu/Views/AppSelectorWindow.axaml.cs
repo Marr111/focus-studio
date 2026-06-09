@@ -23,9 +23,9 @@ public partial class AppSelectorWindow : Window
 
     private async void LoadApps()
     {
-        LoadingText.Visibility = Visibility.Visible;
-        AppsList.Visibility = Visibility.Collapsed;
-        SearchBox.Visibility = Visibility.Collapsed;
+        LoadingText.IsVisible = true;
+        AppsList.IsVisible = false;
+        SearchBox.IsVisible = false;
         
         var apps = await Task.Run(() =>
         {
@@ -65,8 +65,8 @@ public partial class AppSelectorWindow : Window
         AppsList.ItemsSource = _allApps;
         
         LoadingText.Text = $"Trovati {apps.Count} programmi.";
-        AppsList.Visibility = Visibility.Visible;
-        SearchBox.Visibility = Visibility.Visible;
+        AppsList.IsVisible = true;
+        SearchBox.IsVisible = true;
     }
 
     private IEnumerable<string> GetFilesSafe(string path, string pattern)
@@ -106,15 +106,13 @@ public partial class AppSelectorWindow : Window
         {
             SelectedExecutable = app.ExecutablePath;
             SelectedName = app.Name;
-            DialogResult = true;
-            Close();
+            Close(true);
         }
     }
 
     private void BtnCancel_Click(object sender, RoutedEventArgs e)
     {
-        DialogResult = false;
-        Close();
+        Close(false);
     }
 }
 

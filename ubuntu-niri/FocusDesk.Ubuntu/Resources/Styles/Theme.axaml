@@ -1,0 +1,149 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:conv="using:FocusDesk.Converters">
+
+    <Styles.Resources>
+        <conv:SessionTypeToColorConverter x:Key="SessionTypeToColor"/>
+        <conv:ProgressToArcConverter x:Key="ProgressToArc"/>
+        <conv:PomodoroCountConverter x:Key="PomodoroCount"/>
+        <conv:IntToStringConverter x:Key="IntToString"/>
+        <conv:BoolToFontWeightConverter x:Key="BoolToFontWeight"/>
+        <conv:InverseBoolConverter x:Key="InverseBool"/>
+        <conv:HeatmapColorConverter x:Key="HeatmapColor"/>
+        <conv:ModeTabBackgroundConverter x:Key="ModeTabBackground"/>
+        <conv:ExePathToIconConverter x:Key="ExePathToIcon"/>
+        <conv:SessionTypeToBackgroundConverter x:Key="SessionTypeToBackground"/>
+        <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibility"/>
+        <conv:BoolToVisibilityConverter x:Key="BoolToVisibility"/>
+        <conv:StringEqualityConverter x:Key="StringEquality"/>
+
+        <SolidColorBrush x:Key="BgDeep"         Color="#0D0D1A"/>
+        <SolidColorBrush x:Key="BgMain"         Color="#1A1A2E"/>
+        <SolidColorBrush x:Key="BgCard"         Color="#16213E"/>
+        <SolidColorBrush x:Key="BgElevated"     Color="#1E2A4A"/>
+        <SolidColorBrush x:Key="BgHover"        Color="#252545"/>
+
+        <SolidColorBrush x:Key="AccentFocus"    Color="#E94560"/>
+        <SolidColorBrush x:Key="AccentBreakS"   Color="#4CAF91"/>
+        <SolidColorBrush x:Key="AccentBreakL"   Color="#457BBD"/>
+
+        <SolidColorBrush x:Key="TextPrimary"    Color="#EAEAEA"/>
+        <SolidColorBrush x:Key="TextSecondary"  Color="#A0A0B8"/>
+        <SolidColorBrush x:Key="TextMuted"      Color="#606080"/>
+        <SolidColorBrush x:Key="BorderColor"    Color="#2A2A4A"/>
+
+        <FontFamily x:Key="FontMain">Segoe UI</FontFamily>
+    </Styles.Resources>
+
+    <Style Selector="Window.FocusDeskWindow">
+        <Setter Property="Background" Value="{StaticResource BgMain}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+        <Setter Property="FontFamily" Value="{StaticResource FontMain}"/>
+        <Setter Property="SystemDecorations" Value="None"/>
+    </Style>
+
+    <Style Selector="Button.BtnPrimary">
+        <Setter Property="Background" Value="{StaticResource AccentFocus}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Padding" Value="40,14"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="CornerRadius" Value="12"/>
+    </Style>
+    <Style Selector="Button.BtnPrimary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Opacity" Value="0.85"/>
+    </Style>
+    <Style Selector="Button.BtnPrimary:pressed /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Opacity" Value="0.7"/>
+    </Style>
+
+    <Style Selector="Button.BtnGhost">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Padding" Value="16,8"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="{StaticResource BorderColor}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="CornerRadius" Value="8"/>
+    </Style>
+    <Style Selector="Button.BtnGhost:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource BgHover}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+    </Style>
+    <Style Selector="Button.BtnGhost.Active">
+        <Setter Property="Background" Value="{StaticResource BgHover}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+    </Style>
+
+    <Style Selector="Button.BtnIcon">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Width" Value="32"/>
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="CornerRadius" Value="6"/>
+    </Style>
+    <Style Selector="Button.BtnIcon:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource BgHover}"/>
+        <Setter Property="Foreground" Value="{StaticResource AccentFocus}"/>
+    </Style>
+
+    <Style Selector="Button.BtnModeTab">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Padding" Value="16,8"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="CornerRadius" Value="8"/>
+    </Style>
+    <Style Selector="Button.BtnModeTab:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource BgHover}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+    </Style>
+
+    <Style Selector="Button.BtnNav">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{StaticResource TextMuted}"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="Padding" Value="12,8"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="CornerRadius" Value="8"/>
+    </Style>
+    <Style Selector="Button.BtnNav:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource BgHover}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+    </Style>
+    <Style Selector="Button.BtnNav.Active /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Foreground" Value="{StaticResource AccentFocus}"/>
+    </Style>
+
+    <Style Selector="TextBox.InputField">
+        <Setter Property="Background" Value="{StaticResource BgElevated}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+        <Setter Property="CaretBrush" Value="{StaticResource AccentFocus}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource BorderColor}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Padding" Value="12,10"/>
+        <Setter Property="CornerRadius" Value="8"/>
+    </Style>
+    <Style Selector="TextBox.InputField:focus /template/ Border#PART_BorderElement">
+        <Setter Property="BorderBrush" Value="{StaticResource AccentFocus}"/>
+    </Style>
+
+    <Style Selector="Border.Card">
+        <Setter Property="Background" Value="{StaticResource BgCard}"/>
+        <Setter Property="CornerRadius" Value="16"/>
+        <Setter Property="Padding" Value="20"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="{StaticResource BorderColor}"/>
+    </Style>
+</Styles>

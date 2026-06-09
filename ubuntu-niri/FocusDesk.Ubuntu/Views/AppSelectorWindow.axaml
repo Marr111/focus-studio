@@ -1,15 +1,12 @@
 <Window x:Class="FocusDesk.Views.AppSelectorWindow"
         xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:views="using:FocusDesk.Views"
         Title="Seleziona Applicazione" Height="500" Width="450"
         WindowStartupLocation="CenterOwner"
-        Icon="pack://application:,,,/Resources/AppIcon.ico"
+        Icon="/Resources/AppIcon.ico"
         Background="#1A1A2E" Foreground="#EAEAEA">
     
-    <Window.Resources>
-        <ResourceDictionary Source="/Resources/Styles/Theme.xaml"/>
-    </Window.Resources>
-
     <Grid Margin="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -24,14 +21,13 @@
                    Foreground="#A0A0B8" TextWrapping="Wrap" FontSize="12" x:Name="LoadingText"/>
         
         <TextBox Grid.Row="2" x:Name="SearchBox" TextChanged="SearchBox_TextChanged"
-                 Style="{StaticResource InputField}" Margin="0,0,0,12" IsVisible="False"
+                 Classes="InputField" Margin="0,0,0,12" IsVisible="False"
                  Tag="Cerca programma..."/>
                    
         <ListBox x:Name="AppsList" Grid.Row="3" Background="#16213E" BorderBrush="#2A2A4A"
-                 Foreground="#EAEAEA" ScrollViewer.VerticalScrollBarVisibility="Auto" IsVisible="False"
-                 VirtualizingPanel.IsVirtualizing="True">
+                 Foreground="#EAEAEA" ScrollViewer.VerticalScrollBarVisibility="Auto" IsVisible="False">
             <ListBox.ItemTemplate>
-                <DataTemplate>
+                <DataTemplate x:DataType="views:AppItem">
                     <StackPanel Orientation="Horizontal" Margin="4,8">
                         <Image Source="{Binding ExecutablePath, Converter={StaticResource ExePathToIcon}}" Width="32" Height="32" Margin="0,0,12,0"/>
                         <StackPanel VerticalAlignment="Center">

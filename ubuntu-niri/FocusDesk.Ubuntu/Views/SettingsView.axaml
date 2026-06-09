@@ -1,6 +1,8 @@
 <UserControl x:Class="FocusDesk.Views.SettingsView"
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:FocusDesk.ViewModels"
+             x:DataType="vm:SettingsViewModel"
              Background="Transparent">
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -10,7 +12,7 @@
             <Grid Margin="0,0,0,20">
                 <TextBlock Text="Impostazioni" FontSize="22" FontWeight="Bold"
                            Foreground="{StaticResource TextPrimary}"/>
-                <Button HorizontalAlignment="Right" Style="{StaticResource BtnPrimary}"
+                <Button HorizontalAlignment="Right" Classes="BtnPrimary"
                         Content="💾 Salva" Command="{Binding SaveCommand}"
                         Padding="20,10" FontSize="13"/>
             </Grid>
@@ -18,7 +20,7 @@
             <!-- ══════════ TIMER ══════════ -->
             <TextBlock Text="⏱ TIMER" FontSize="10" FontWeight="Bold"
                        Foreground="{StaticResource AccentFocus}" Margin="0,0,0,10"/>
-            <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+            <Border Classes="Card" Margin="0,0,0,16">
                 <StackPanel>
                     <!-- Durata Focus -->
                     <Grid Margin="0,0,0,14">
@@ -33,19 +35,19 @@
                                        Foreground="{StaticResource TextMuted}"/>
                         </StackPanel>
                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                            <Button Style="{StaticResource BtnIcon}" Content="−" Width="28" Height="28"
+                            <Button Classes="BtnIcon" Content="−" Width="28" Height="28"
                                     Click="DecFocus_Click"/>
-                            <TextBox Style="{StaticResource InputField}"
-                                     Text="{Binding FocusDuration, UpdateSourceTrigger=PropertyChanged}"
+                            <TextBox Classes="InputField"
+                                     Text="{Binding FocusDuration}"
                                      Width="52" TextAlignment="Center" Margin="6,0" FontSize="15"
                                      FontWeight="SemiBold" Padding="4"/>
-                            <Button Style="{StaticResource BtnIcon}" Content="+" Width="28" Height="28"
+                            <Button Classes="BtnIcon" Content="+" Width="28" Height="28"
                                     Click="IncFocus_Click"/>
                             <TextBlock Text="min" Foreground="{StaticResource TextMuted}"
                                        FontSize="12" Margin="6,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Grid>
-                    <Separator/>
+                    <Border Height="1" Background="{StaticResource BorderColor}" Margin="0,8"/>
                     <!-- Pausa breve -->
                     <Grid Margin="0,14,0,14">
                         <Grid.ColumnDefinitions>
@@ -59,19 +61,19 @@
                                        Foreground="{StaticResource TextMuted}"/>
                         </StackPanel>
                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                            <Button Style="{StaticResource BtnIcon}" Content="−" Width="28" Height="28"
+                            <Button Classes="BtnIcon" Content="−" Width="28" Height="28"
                                     Click="DecShort_Click"/>
-                            <TextBox Style="{StaticResource InputField}"
-                                     Text="{Binding ShortBreakDuration, UpdateSourceTrigger=PropertyChanged}"
+                            <TextBox Classes="InputField"
+                                     Text="{Binding ShortBreakDuration}"
                                      Width="52" TextAlignment="Center" Margin="6,0" FontSize="15"
                                      FontWeight="SemiBold" Padding="4"/>
-                            <Button Style="{StaticResource BtnIcon}" Content="+" Width="28" Height="28"
+                            <Button Classes="BtnIcon" Content="+" Width="28" Height="28"
                                     Click="IncShort_Click"/>
                             <TextBlock Text="min" Foreground="{StaticResource TextMuted}"
                                        FontSize="12" Margin="6,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Grid>
-                    <Separator/>
+                    <Border Height="1" Background="{StaticResource BorderColor}" Margin="0,8"/>
                     <!-- Pausa lunga -->
                     <Grid Margin="0,14,0,14">
                         <Grid.ColumnDefinitions>
@@ -85,19 +87,19 @@
                                        Foreground="{StaticResource TextMuted}"/>
                         </StackPanel>
                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                            <Button Style="{StaticResource BtnIcon}" Content="−" Width="28" Height="28"
+                            <Button Classes="BtnIcon" Content="−" Width="28" Height="28"
                                     Click="DecLong_Click"/>
-                            <TextBox Style="{StaticResource InputField}"
-                                     Text="{Binding LongBreakDuration, UpdateSourceTrigger=PropertyChanged}"
+                            <TextBox Classes="InputField"
+                                     Text="{Binding LongBreakDuration}"
                                      Width="52" TextAlignment="Center" Margin="6,0" FontSize="15"
                                      FontWeight="SemiBold" Padding="4"/>
-                            <Button Style="{StaticResource BtnIcon}" Content="+" Width="28" Height="28"
+                            <Button Classes="BtnIcon" Content="+" Width="28" Height="28"
                                     Click="IncLong_Click"/>
                             <TextBlock Text="min" Foreground="{StaticResource TextMuted}"
                                        FontSize="12" Margin="6,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Grid>
-                    <Separator/>
+                    <Border Height="1" Background="{StaticResource BorderColor}" Margin="0,8"/>
                     <!-- Sessioni prima della pausa lunga -->
                     <Grid Margin="0,14,0,0">
                         <Grid.ColumnDefinitions>
@@ -111,13 +113,13 @@
                                        Foreground="{StaticResource TextMuted}"/>
                         </StackPanel>
                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                            <Button Style="{StaticResource BtnIcon}" Content="−" Width="28" Height="28"
+                            <Button Classes="BtnIcon" Content="−" Width="28" Height="28"
                                     Click="DecCycle_Click"/>
-                            <TextBox Style="{StaticResource InputField}"
-                                     Text="{Binding SessionsBeforeLongBreak, UpdateSourceTrigger=PropertyChanged}"
+                            <TextBox Classes="InputField"
+                                     Text="{Binding SessionsBeforeLongBreak}"
                                      Width="52" TextAlignment="Center" Margin="6,0" FontSize="15"
                                      FontWeight="SemiBold" Padding="4"/>
-                            <Button Style="{StaticResource BtnIcon}" Content="+" Width="28" Height="28"
+                            <Button Classes="BtnIcon" Content="+" Width="28" Height="28"
                                     Click="IncCycle_Click"/>
                         </StackPanel>
                     </Grid>
@@ -127,7 +129,7 @@
             <!-- ══════════ EFFETTI AUDIO ══════════ -->
             <TextBlock Text="🎵 EFFETTI AUDIO" FontSize="10" FontWeight="Bold"
                        Foreground="{StaticResource AccentFocus}" Margin="0,0,0,10"/>
-            <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+            <Border Classes="Card" Margin="0,0,0,16">
                 <StackPanel>
                     <!-- Ticchettio -->
                     <Grid Margin="0,0,0,14">
@@ -144,10 +146,10 @@
                                   SelectedItem="{Binding SelectedTickingSound}"
                                   Width="140" Margin="0,0,10,0" VerticalAlignment="Center"
                                   IsEnabled="{Binding EnableTickingSound}"/>
-                        <CheckBox Grid.Column="2" Style="{StaticResource ToggleSwitch}" IsChecked="{Binding EnableTickingSound}"
+                        <ToggleSwitch Grid.Column="2" IsChecked="{Binding EnableTickingSound}"
                                   VerticalAlignment="Center"/>
                     </Grid>
-                    <Separator/>
+                    <Border Height="1" Background="{StaticResource BorderColor}" Margin="0,8"/>
                     <!-- Allarmi -->
                     <Grid Margin="0,14,0,14">
                         <Grid.ColumnDefinitions>
@@ -163,10 +165,10 @@
                                   SelectedItem="{Binding SelectedAlarmSound}"
                                   Width="140" Margin="0,0,10,0" VerticalAlignment="Center"
                                   IsEnabled="{Binding EnableAlarmSound}"/>
-                        <CheckBox Grid.Column="2" Style="{StaticResource ToggleSwitch}" IsChecked="{Binding EnableAlarmSound}"
+                        <ToggleSwitch Grid.Column="2" IsChecked="{Binding EnableAlarmSound}"
                                   VerticalAlignment="Center"/>
                     </Grid>
-                    <Separator/>
+                    <Border Height="1" Background="{StaticResource BorderColor}" Margin="0,8"/>
                     <!-- Suoni UI -->
                     <Grid Margin="0,14,0,0">
                         <Grid.ColumnDefinitions>
@@ -177,7 +179,7 @@
                             <TextBlock Text="Suoni Interfaccia" FontSize="14" Foreground="{StaticResource TextPrimary}" FontWeight="SemiBold"/>
                             <TextBlock Text="Click sui bottoni e interazioni varie" FontSize="12" Foreground="{StaticResource TextMuted}"/>
                         </StackPanel>
-                        <CheckBox Grid.Column="1" Style="{StaticResource ToggleSwitch}" IsChecked="{Binding EnableUiSounds}"
+                        <ToggleSwitch Grid.Column="1" IsChecked="{Binding EnableUiSounds}"
                                   VerticalAlignment="Center"/>
                     </Grid>
                 </StackPanel>
@@ -186,23 +188,23 @@
             <!-- ══════════ COMPORTAMENTO ══════════ -->
             <TextBlock Text="🎛 COMPORTAMENTO" FontSize="10" FontWeight="Bold"
                        Foreground="{StaticResource AccentBreakS}" Margin="0,0,0,10"/>
-            <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+            <Border Classes="Card" Margin="0,0,0,16">
                 <StackPanel>
                     <Grid Margin="0,14,0,14">
                         <TextBlock Text="Auto-avvia pause" FontSize="14" Foreground="{StaticResource TextPrimary}" VerticalAlignment="Center"/>
-                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding AutoStartBreaks}"
+                        <ToggleSwitch IsChecked="{Binding AutoStartBreaks}"
                                   HorizontalAlignment="Right" VerticalAlignment="Center"/>
                     </Grid>
-                    <Separator/>
+                    <Border Height="1" Background="{StaticResource BorderColor}" Margin="0,8"/>
                     <Grid Margin="0,14,0,14">
                         <TextBlock Text="Auto-avvia pomodoro" FontSize="14" Foreground="{StaticResource TextPrimary}" VerticalAlignment="Center"/>
-                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding AutoStartFocus}"
+                        <ToggleSwitch IsChecked="{Binding AutoStartFocus}"
                                   HorizontalAlignment="Right" VerticalAlignment="Center"/>
                     </Grid>
-                    <Separator/>
+                    <Border Height="1" Background="{StaticResource BorderColor}" Margin="0,8"/>
                     <Grid Margin="0,14,0,0">
                         <TextBlock Text="Minimizza nel tray" FontSize="14" Foreground="{StaticResource TextPrimary}" VerticalAlignment="Center"/>
-                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding MinimizeToTray}"
+                        <ToggleSwitch IsChecked="{Binding MinimizeToTray}"
                                   HorizontalAlignment="Right" VerticalAlignment="Center"/>
                     </Grid>
                 </StackPanel>
@@ -211,7 +213,7 @@
             <!-- ══════════ FOCUS MODE ══════════ -->
             <TextBlock Text="🚀 FOCUS MODE" FontSize="10" FontWeight="Bold"
                        Foreground="{StaticResource AccentBreakL}" Margin="0,0,0,10"/>
-            <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+            <Border Classes="Card" Margin="0,0,0,16">
                 <StackPanel>
                     <Grid Margin="0,0,0,14">
                         <StackPanel>
@@ -220,10 +222,10 @@
                             <TextBlock Text="Crea un desktop separato solo con le app whitelist"
                                        FontSize="12" Foreground="{StaticResource TextMuted}" TextWrapping="Wrap"/>
                         </StackPanel>
-                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding EnableDesktopIsolation}"
+                        <ToggleSwitch IsChecked="{Binding EnableDesktopIsolation}"
                                   HorizontalAlignment="Right" VerticalAlignment="Top"/>
                     </Grid>
-                    <Separator/>
+                    <Border Height="1" Background="{StaticResource BorderColor}" Margin="0,8"/>
                     <Grid Margin="0,14,0,0">
                         <StackPanel>
                             <TextBlock Text="Blocco Siti Web" FontSize="14" FontWeight="SemiBold"
@@ -231,7 +233,7 @@
                             <TextBlock Text="Blocca i siti nella lista nera durante la sessione"
                                        FontSize="12" Foreground="{StaticResource TextMuted}" TextWrapping="Wrap"/>
                         </StackPanel>
-                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding EnableWebsiteBlocking}"
+                        <ToggleSwitch IsChecked="{Binding EnableWebsiteBlocking}"
                                   HorizontalAlignment="Right" VerticalAlignment="Top"/>
                     </Grid>
                 </StackPanel>
@@ -240,14 +242,14 @@
             <!-- ══════════ WHITELIST APP ══════════ -->
             <TextBlock Text="📱 WHITELIST APP" FontSize="10" FontWeight="Bold"
                        Foreground="{StaticResource TextMuted}" Margin="0,0,0,10"/>
-            <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+            <Border Classes="Card" Margin="0,0,0,16">
                 <StackPanel>
-                    <Button Style="{StaticResource BtnGhost}" Content="+ Aggiungi applicazione"
+                    <Button Classes="BtnGhost" Content="+ Aggiungi applicazione"
                             Command="{Binding AddWhitelistAppCommand}"
                             HorizontalAlignment="Left" Margin="0,0,0,12"/>
                     <ItemsControl ItemsSource="{Binding WhitelistApps}">
                         <ItemsControl.ItemTemplate>
-                            <DataTemplate>
+                            <DataTemplate x:CompileBindings="False">
                                 <Grid Margin="0,4">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
@@ -262,8 +264,8 @@
                                                    Foreground="{StaticResource TextMuted}"
                                                    TextTrimming="CharacterEllipsis"/>
                                     </StackPanel>
-                                    <Button Grid.Column="2" Style="{StaticResource BtnIcon}" Content="✕"
-                                            Command="{Binding DataContext.RemoveWhitelistAppCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                    <Button Grid.Column="2" Classes="BtnIcon" Content="✕"
+                                            Command="{Binding $parent[UserControl].DataContext.RemoveWhitelistAppCommand}"
                                             CommandParameter="{Binding}"/>
                                 </Grid>
                             </DataTemplate>
@@ -271,37 +273,26 @@
                     </ItemsControl>
                     <TextBlock Text="Nessuna app configurata" FontSize="13"
                                Foreground="{StaticResource TextMuted}" HorizontalAlignment="Center"
-                               Margin="0,8">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Visibility" Value="Collapsed"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding WhitelistApps.Count}" Value="0">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
+                               Margin="0,8" IsVisible="{Binding !WhitelistApps.Count}"/>
                 </StackPanel>
             </Border>
 
             <!-- ══════════ SITI BLOCCATI ══════════ -->
             <TextBlock Text="🚫 SITI BLOCCATI" FontSize="10" FontWeight="Bold"
                        Foreground="{StaticResource TextMuted}" Margin="0,0,0,10"/>
-            <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+            <Border Classes="Card" Margin="0,0,0,16">
                 <StackPanel>
                     <!-- Preset buttons -->
                     <TextBlock Text="Preset rapidi:" FontSize="12"
                                Foreground="{StaticResource TextSecondary}" Margin="0,0,0,8"/>
                     <WrapPanel Margin="0,0,0,12">
-                        <Button Style="{StaticResource BtnGhost}" Content="📱 Social"
+                        <Button Classes="BtnGhost" Content="📱 Social"
                                 Command="{Binding AddSocialPresetCommand}"
                                 Padding="12,6" Margin="0,0,6,6" FontSize="12"/>
-                        <Button Style="{StaticResource BtnGhost}" Content="📰 News"
+                        <Button Classes="BtnGhost" Content="📰 News"
                                 Command="{Binding AddNewsPresetCommand}"
                                 Padding="12,6" Margin="0,0,6,6" FontSize="12"/>
-                        <Button Style="{StaticResource BtnGhost}" Content="📺 Video"
+                        <Button Classes="BtnGhost" Content="📺 Video"
                                 Command="{Binding AddVideoPresetCommand}"
                                 Padding="12,6" Margin="0,0,6,6" FontSize="12"/>
                     </WrapPanel>
@@ -312,14 +303,14 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBox Grid.Column="0" Style="{StaticResource InputField}"
-                                 Text="{Binding NewBlockedDomain, UpdateSourceTrigger=PropertyChanged}"
+                        <TextBox Grid.Column="0" Classes="InputField"
+                                 Text="{Binding NewBlockedDomain}"
                                  Tag="es. esempio.com" Margin="0,0,8,0">
-                            <TextBox.InputBindings>
-                                <KeyBinding Key="Return" Command="{Binding AddBlockedSiteCommand}"/>
-                            </TextBox.InputBindings>
+                            <TextBox.KeyBindings>
+                                <KeyBinding Gesture="Enter" Command="{Binding AddBlockedSiteCommand}"/>
+                            </TextBox.KeyBindings>
                         </TextBox>
-                        <Button Grid.Column="1" Style="{StaticResource BtnPrimary}"
+                        <Button Grid.Column="1" Classes="BtnPrimary"
                                 Content="+" FontSize="18" Padding="12,10"
                                 Command="{Binding AddBlockedSiteCommand}"/>
                     </Grid>
@@ -328,7 +319,7 @@
                     <ScrollViewer MaxHeight="200" VerticalScrollBarVisibility="Auto">
                         <ItemsControl ItemsSource="{Binding BlockedSites}">
                             <ItemsControl.ItemTemplate>
-                                <DataTemplate>
+                                <DataTemplate x:CompileBindings="False">
                                     <Grid Margin="0,3">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>
@@ -337,10 +328,8 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <!-- Enable toggle -->
-                                        <CheckBox Grid.Column="0" Style="{StaticResource ToggleSwitch}"
+                                        <ToggleSwitch Grid.Column="0"
                                                   IsChecked="{Binding IsEnabled}"
-                                                  Command="{Binding DataContext.ToggleSiteEnabledCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                  CommandParameter="{Binding}"
                                                   Margin="0,0,10,0"/>
                                         <!-- Domain -->
                                         <TextBlock Grid.Column="1" Text="{Binding Domain}" FontSize="13"
@@ -353,8 +342,8 @@
                                                        Foreground="{StaticResource TextMuted}"/>
                                         </Border>
                                         <!-- Delete -->
-                                        <Button Grid.Column="3" Style="{StaticResource BtnIcon}" Content="✕"
-                                                Command="{Binding DataContext.RemoveBlockedSiteCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                        <Button Grid.Column="3" Classes="BtnIcon" Content="✕"
+                                                Command="{Binding $parent[UserControl].DataContext.RemoveBlockedSiteCommand}"
                                                 CommandParameter="{Binding}"/>
                                     </Grid>
                                 </DataTemplate>

@@ -1,0 +1,10 @@
+/home/matteo/me/focus-studio/ubuntu-niri/FocusDesk.Ubuntu/obj/Release/net8.0/linux-x64/FocusDesk.Ubuntu.csproj.AssemblyReference.cache
+/home/matteo/me/focus-studio/ubuntu-niri/FocusDesk.Ubuntu/obj/Release/net8.0/linux-x64/Avalonia/Resources.Inputs.cache
+/home/matteo/me/focus-studio/ubuntu-niri/FocusDesk.Ubuntu/obj/Release/net8.0/linux-x64/Avalonia/resources
+/home/matteo/me/focus-studio/ubuntu-niri/FocusDesk.Ubuntu/obj/Release/net8.0/linux-x64/FocusDesk.Ubuntu.GeneratedMSBuildEditorConfig.editorconfig
+/home/matteo/me/focus-studio/ubuntu-niri/FocusDesk.Ubuntu/obj/Release/net8.0/linux-x64/FocusDesk.Ubuntu.AssemblyInfoInputs.cache
+/home/matteo/me/focus-studio/ubuntu-niri/FocusDesk.Ubuntu/obj/Release/net8.0/linux-x64/FocusDesk.Ubuntu.AssemblyInfo.cs
+/home/matteo/me/focus-studio/ubuntu-niri/FocusDesk.Ubuntu/obj/Release/net8.0/linux-x64/FocusDesk.Ubuntu.csproj.CoreCompileInputs.cache
+/home/matteo/me/focus-studio/ubuntu-niri/FocusDesk.Ubuntu/obj/Release/net8.0/linux-x64/FocusDesk.Ubuntu.dll
+/home/matteo/me/focus-studio/ubuntu-niri/FocusDesk.Ubuntu/obj/Release/net8.0/linux-x64/refint/FocusDesk.Ubuntu.dll
+/home/matteo/me/focus-studio/ubuntu-niri/FocusDesk.Ubuntu/obj/Release/net8.0/linux-x64/FocusDesk.Ubuntu.pdb

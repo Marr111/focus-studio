@@ -1,0 +1,49 @@
+is_global = true
+build_property.AvaloniaNameGeneratorIsEnabled = true
+build_property.AvaloniaNameGeneratorBehavior = InitializeComponent
+build_property.AvaloniaNameGeneratorDefaultFieldModifier = internal
+build_property.AvaloniaNameGeneratorFilterByPath = *
+build_property.AvaloniaNameGeneratorFilterByNamespace = *
+build_property.AvaloniaNameGeneratorViewFileNamingStrategy = NamespaceAndClassName
+build_property.AvaloniaNameGeneratorAttachDevTools = true
+build_property.MvvmToolkitEnableINotifyPropertyChangingSupport = true
+build_property._MvvmToolkitIsUsingWindowsRuntimePack = false
+build_property.CsWinRTComponent = 
+build_property.CsWinRTAotOptimizerEnabled = 
+build_property.CsWinRTAotWarningLevel = 
+build_property.TargetFramework = net8.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = FocusDesk.Ubuntu
+build_property.ProjectDir = /home/matteo/me/focus-studio/ubuntu-niri/FocusDesk.Ubuntu/
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+
+[/home/matteo/me/focus-studio/ubuntu-niri/FocusDesk.Ubuntu/App.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[/home/matteo/me/focus-studio/ubuntu-niri/FocusDesk.Ubuntu/Resources/Styles/Theme.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[/home/matteo/me/focus-studio/ubuntu-niri/FocusDesk.Ubuntu/Views/AppSelectorWindow.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[/home/matteo/me/focus-studio/ubuntu-niri/FocusDesk.Ubuntu/Views/FocusOverlay.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[/home/matteo/me/focus-studio/ubuntu-niri/FocusDesk.Ubuntu/Views/MainWindow.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[/home/matteo/me/focus-studio/ubuntu-niri/FocusDesk.Ubuntu/Views/SettingsView.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[/home/matteo/me/focus-studio/ubuntu-niri/FocusDesk.Ubuntu/Views/StatsView.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[/home/matteo/me/focus-studio/ubuntu-niri/FocusDesk.Ubuntu/Views/TasksView.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml

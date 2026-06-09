@@ -176,8 +176,11 @@ public partial class SettingsViewModel : ObservableObject
     private async Task AddWhitelistApp()
     {
         var window = new FocusDesk.Views.AppSelectorWindow();
-        window.Owner = Application.Current.MainWindow;
-        if (window.ShowDialog() == true && window.SelectedExecutable != null)
+        var mainWindow = (Avalonia.Application.Current?.ApplicationLifetime as Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime)?.MainWindow;
+        if (mainWindow != null)
+        {
+            var result = await window.ShowDialog<bool>(mainWindow);
+            if (result && window.SelectedExecutable != null)
         {
             var entry = new AppWhitelistEntry
             {
@@ -191,6 +194,7 @@ public partial class SettingsViewModel : ObservableObject
             await db.SaveChangesAsync();
 
             WhitelistApps.Add(entry);
+        }
         }
     }
 

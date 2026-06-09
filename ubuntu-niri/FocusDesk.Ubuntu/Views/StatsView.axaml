@@ -1,7 +1,9 @@
 <UserControl x:Class="FocusDesk.Views.StatsView"
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:FocusDesk.ViewModels"
              xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
+             x:DataType="vm:StatsViewModel"
              Background="Transparent">
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -11,7 +13,7 @@
             <Grid Margin="0,0,0,20">
                 <TextBlock Text="Statistiche" FontSize="22" FontWeight="Bold"
                            Foreground="{StaticResource TextPrimary}"/>
-                <Button HorizontalAlignment="Right" Style="{StaticResource BtnGhost}"
+                <Button HorizontalAlignment="Right" Classes="BtnGhost"
                         Content="↻ Aggiorna" Command="{Binding RefreshCommand}"
                         Padding="12,6" FontSize="12"/>
             </Grid>
@@ -30,7 +32,7 @@
                 </Grid.RowDefinitions>
 
                 <!-- Oggi -->
-                <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource Card}">
+                <Border Grid.Row="0" Grid.Column="0" Classes="Card">
                     <StackPanel>
                         <TextBlock Text="🍅 OGGI" FontSize="10" FontWeight="SemiBold"
                                    Foreground="{StaticResource AccentFocus}"/>
@@ -44,7 +46,7 @@
                 </Border>
 
                 <!-- Settimana -->
-                <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource Card}">
+                <Border Grid.Row="0" Grid.Column="2" Classes="Card">
                     <StackPanel>
                         <TextBlock Text="📅 SETTIMANA" FontSize="10" FontWeight="SemiBold"
                                    Foreground="{StaticResource AccentBreakS}"/>
@@ -55,7 +57,7 @@
                 </Border>
 
                 <!-- Streak -->
-                <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource Card}">
+                <Border Grid.Row="2" Grid.Column="0" Classes="Card">
                     <StackPanel>
                         <TextBlock Text="🔥 STREAK" FontSize="10" FontWeight="SemiBold"
                                    Foreground="#FF8C42"/>
@@ -66,7 +68,7 @@
                 </Border>
 
                 <!-- Totale -->
-                <Border Grid.Row="2" Grid.Column="2" Style="{StaticResource Card}">
+                <Border Grid.Row="2" Grid.Column="2" Classes="Card">
                     <StackPanel>
                         <TextBlock Text="🏆 TOTALE" FontSize="10" FontWeight="SemiBold"
                                    Foreground="{StaticResource AccentBreakL}"/>
@@ -78,7 +80,7 @@
             </Grid>
 
             <!-- Aggiunta manuale sessioni -->
-            <Border Style="{StaticResource Card}" Margin="0,0,0,20">
+            <Border Classes="Card" Margin="0,0,0,20">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -93,20 +95,19 @@
                     </StackPanel>
 
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBox Style="{StaticResource InputField}" Text="{Binding ManualSessionCount, UpdateSourceTrigger=PropertyChanged}" 
-                                 Width="40" TextAlignment="Center" Margin="0,0,8,0" Padding="8,4"/>
+                        <TextBox Classes="InputField" Text="{Binding ManualSessionCount}" 
+                                 Width="50" TextAlignment="Center" Margin="0,0,8,0" Padding="8,6"/>
                         <DatePicker SelectedDate="{Binding ManualSessionDate}" 
-                                    Width="100" Margin="0,0,8,0" VerticalAlignment="Center"
-                                    Background="Transparent" Foreground="Black"/>
-                        <Button Style="{StaticResource BtnPrimary}" Content="➕" 
+                                    Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <Button Classes="BtnPrimary" Content="+" 
                                 Command="{Binding AddManualSessionsCommand}" 
-                                Padding="12,4" FontSize="12" MinWidth="40"/>
+                                Padding="12,6" FontSize="16" MinWidth="40" HorizontalContentAlignment="Center"/>
                     </StackPanel>
                 </Grid>
             </Border>
 
             <!-- Grafico settimanale -->
-            <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+            <Border Classes="Card" Margin="0,0,0,16">
                 <StackPanel>
                     <TextBlock Text="Ultimi 7 giorni" FontSize="14" FontWeight="SemiBold"
                                Foreground="{StaticResource TextPrimary}" Margin="0,0,0,16"/>
@@ -121,7 +122,7 @@
             </Border>
 
             <!-- Grafico orario (Ultimi 30 giorni) -->
-            <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+            <Border Classes="Card" Margin="0,0,0,16">
                 <StackPanel>
                     <TextBlock Text="Orario Sessioni (Ultimi 30 giorni)" FontSize="14" FontWeight="SemiBold"
                                Foreground="{StaticResource TextPrimary}" Margin="0,0,0,16"/>
@@ -136,7 +137,7 @@
             </Border>
 
             <!-- Grafico orario (Di Sempre) -->
-            <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+            <Border Classes="Card" Margin="0,0,0,16">
                 <StackPanel>
                     <TextBlock Text="Orari Più Produttivi (Di Sempre)" FontSize="14" FontWeight="SemiBold"
                                Foreground="{StaticResource TextPrimary}" Margin="0,0,0,16"/>
@@ -151,7 +152,7 @@
             </Border>
 
             <!-- Heatmap 30 giorni -->
-            <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+            <Border Classes="Card" Margin="0,0,0,16">
                 <StackPanel>
                     <TextBlock Text="Ultimi 30 giorni" FontSize="14" FontWeight="SemiBold"
                                Foreground="{StaticResource TextPrimary}" Margin="0,0,0,12"/>
@@ -162,22 +163,20 @@
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
-                            <DataTemplate>
+                            <DataTemplate x:CompileBindings="False">
                                 <Border Width="28" Height="28" CornerRadius="4" Margin="2"
                                         Background="{Binding Sessions, Converter={StaticResource HeatmapColor}}"
                                         Cursor="Hand">
-                                    <Border.ToolTip>
-                                        <ToolTip>
-                                            <StackPanel>
-                                                <TextBlock Text="{Binding Date, StringFormat='ddd dd MMM'}"
-                                                           FontWeight="SemiBold"/>
-                                                <TextBlock>
-                                                    <Run Text="{Binding Sessions}"/>
-                                                    <Run Text=" pomodori"/>
-                                                </TextBlock>
-                                            </StackPanel>
-                                        </ToolTip>
-                                    </Border.ToolTip>
+                                    <ToolTip.Tip>
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Date, StringFormat='ddd dd MMM'}"
+                                                       FontWeight="SemiBold"/>
+                                            <TextBlock>
+                                                <Run Text="{Binding Sessions}"/>
+                                                <Run Text=" pomodori"/>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </ToolTip.Tip>
                                 </Border>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

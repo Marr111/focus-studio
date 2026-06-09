@@ -4,6 +4,8 @@ using Avalonia.Controls; using Avalonia.Interactivity; using Avalonia;
 
 using Avalonia.Input;
 using Avalonia.Media;
+using System.Windows.Input;
+using Avalonia.VisualTree;
 
 namespace FocusDesk.Views;
 
@@ -14,17 +16,14 @@ public partial class MainWindow : Window
     public StatsViewModel StatsVm { get; }
     public SettingsViewModel SettingsVm { get; }
 
-    // Comandi finestra per la title bar
-    public ICommand CloseCommand { get; } = new RelayCommandSimple(() => ((Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime)Avalonia.Application.Current.ApplicationLifetime).MainWindow?.Close());
-    public ICommand MinimizeCommand { get; } = new RelayCommandSimple(() => { if (((Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime)Avalonia.Application.Current.ApplicationLifetime).MainWindow != null) ((Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime)Avalonia.Application.Current.ApplicationLifetime).MainWindow.WindowState = WindowState.Minimized; });
-    public ICommand MaximizeCommand { get; } = new RelayCommandSimple(() =>
+    public void Close_Click(object? sender, RoutedEventArgs e) => Close();
+    
+    public void Minimize_Click(object? sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
+    
+    public void Maximize_Click(object? sender, RoutedEventArgs e)
     {
-        if (((Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime)Avalonia.Application.Current.ApplicationLifetime).MainWindow == null) return;
-        ((Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime)Avalonia.Application.Current.ApplicationLifetime).MainWindow.WindowState =
-            ((Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime)Avalonia.Application.Current.ApplicationLifetime).MainWindow.WindowState == WindowState.Maximized
-                ? WindowState.Normal
-                : WindowState.Maximized;
-    });
+        WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+    }
 
     private Button? _activeNavBtn;
     private readonly SolidColorBrush _activeNavColor;
@@ -37,9 +36,12 @@ public partial class MainWindow : Window
         StatsVm = new StatsViewModel();
         SettingsVm = new SettingsViewModel(MainVm);
 
-        DataContext = this;
-
         InitializeComponent();
+
+        TasksTab.DataContext = TasksVm;
+        StatsTab.DataContext = StatsVm;
+        SettingsTab.DataContext = SettingsVm;
+        DataContext = MainVm;
 
         _activeNavColor = new SolidColorBrush(Color.FromRgb(0xE9, 0x45, 0x60));
         _inactiveNavColor = new SolidColorBrush(Color.FromRgb(0x60, 0x60, 0x80));
@@ -56,8 +58,8 @@ public partial class MainWindow : Window
     // ─── Drag finestra ────────────────────────────────────────────────────────
     private void TitleBar_MouseDown(object sender, PointerPressedEventArgs e)
     {
-        if (e.ChangedButton == MouseButton.Left)
-            DragMove();
+        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+            BeginMoveDrag(e);
     }
 
     // ─── Progress ring aggiornamento ──────────────────────────────────────────
@@ -72,7 +74,7 @@ public partial class MainWindow : Window
         double dashCircumference = circumference / strokeThickness;
         double dashOn = dashCircumference * Math.Clamp(progress, 0, 1);
         
-        ProgressRing.StrokeDashArray = new DoubleCollection([dashOn, dashCircumference]);
+        ProgressRing.StrokeDashArray = new Avalonia.Collections.AvaloniaList<double>([dashOn, dashCircumference]);
         ProgressRing.StrokeDashOffset = 0;
         ProgressRing.Stroke = MainVm.CurrentMode switch
         {
@@ -110,37 +112,26 @@ public partial class MainWindow : Window
         SetActiveNav(NavSettings);
     }
 
-    private void ShowTab(UIElement target)
+    private void ShowTab(Control target)
     {
-        TimerTab.Visibility = Visibility.Collapsed;
-        TasksTab.Visibility = Visibility.Collapsed;
-        StatsTab.Visibility = Visibility.Collapsed;
-        SettingsTab.Visibility = Visibility.Collapsed;
-        target.Visibility = Visibility.Visible;
+        TimerTab.IsVisible = false;
+        TasksTab.IsVisible = false;
+        StatsTab.IsVisible = false;
+        SettingsTab.IsVisible = false;
+        target.IsVisible = true;
     }
 
     private void SetActiveNav(Button btn)
     {
         if (_activeNavBtn != null)
-            SetNavButtonColor(_activeNavBtn, _inactiveNavColor);
+        {
+            _activeNavBtn.Classes.Remove("Active");
+        }
 
         _activeNavBtn = btn;
-        SetNavButtonColor(btn, _activeNavColor);
-    }
-
-    private static void SetNavButtonColor(Button btn, SolidColorBrush brush)
-    {
-        foreach (var tb in FindVisualChildren<TextBlock>(btn))
-            tb.Foreground = brush;
-    }
-
-    private static IEnumerable<T> FindVisualChildren<T>(DependencyObject obj) where T : DependencyObject
-    {
-        for (int i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
+        if (btn != null && !btn.Classes.Contains("Active"))
         {
-            var child = VisualTreeHelper.GetChild(obj, i);
-            if (child is T typed) yield return typed;
-            foreach (var c in FindVisualChildren<T>(child)) yield return c;
+            btn.Classes.Add("Active");
         }
     }
 }

@@ -6,9 +6,9 @@ using System.IO;
 using Avalonia.Controls; using Avalonia.Interactivity; using Avalonia;
 
 using Avalonia.Media;
-using System.Windows.Shapes;
-using System.Windows.Threading;
-
+using Avalonia.Threading;
+using Avalonia.Controls.Shapes;
+using Avalonia.Input;
 namespace FocusDesk.Views;
 
 public partial class FocusOverlay : Window
@@ -27,6 +27,12 @@ public partial class FocusOverlay : Window
     ];
 
     private Action? _onExit;
+
+    public FocusOverlay()
+    {
+        InitializeComponent();
+        _timerService = null!;
+    }
 
     public FocusOverlay(TimerService timerService, Action? onExit = null)
     {
@@ -53,7 +59,7 @@ public partial class FocusOverlay : Window
 
     private void OnTimerCompleted(object? sender, EventArgs e)
     {
-        Dispatcher.Invoke(() => CloseOverlay());
+        Dispatcher.UIThread.Post(() => CloseOverlay());
     }
 
     private void UpdateDisplay(TimeSpan remaining)
@@ -69,7 +75,7 @@ public partial class FocusOverlay : Window
         await using var db = new AppDbContext();
         var apps = await db.WhitelistEntries.OrderBy(a => a.SortOrder).ToListAsync();
 
-        Dispatcher.Invoke(() =>
+        Dispatcher.UIThread.Post(() =>
         {
             AppDock.Children.Clear();
             foreach (var app in apps)
@@ -85,7 +91,7 @@ public partial class FocusOverlay : Window
                     Text = "Nessuna app nella whitelist. Configurale nelle Impostazioni.",
                     Foreground = new SolidColorBrush(Color.FromArgb(0x60, 0xFF, 0xFF, 0xFF)),
                     FontSize = 13,
-                    VerticalAlignment = VerticalAlignment.Center
+                    VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
                 };
                 AppDock.Children.Add(hint);
             }
@@ -100,11 +106,11 @@ public partial class FocusOverlay : Window
             Margin = new Thickness(8, 0, 8, 0),
             Background = Brushes.Transparent,
             BorderThickness = new Thickness(0),
-            Cursor = System.Windows.Input.Cursors.Hand,
-            ToolTip = safeName
+            Cursor = new Cursor(StandardCursorType.Hand)
         };
+        ToolTip.SetTip(btn, safeName);
 
-        var panel = new StackPanel { Orientation = Orientation.Vertical };
+        var panel = new StackPanel { Orientation = Avalonia.Layout.Orientation.Vertical };
 
         // Icona app (usa una ellisse colorata come placeholder)
         var iconBorder = new Border
@@ -117,10 +123,10 @@ public partial class FocusOverlay : Window
             {
                 Text = safeName.Length > 0 ? safeName[0].ToString().ToUpper() : "?",
                 FontSize = 24,
-                FontWeight = FontWeights.Bold,
+                FontWeight = Avalonia.Media.FontWeight.Bold,
                 Foreground = Brushes.White,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+                VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
             }
         };
 
@@ -129,7 +135,7 @@ public partial class FocusOverlay : Window
             Text = safeName.Length > 12 ? safeName[..12] + "\u2026" : safeName,
             FontSize = 11,
             Foreground = new SolidColorBrush(Color.FromArgb(0xCC, 0xFF, 0xFF, 0xFF)),
-            HorizontalAlignment = HorizontalAlignment.Center,
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
             Margin = new Thickness(0, 4, 0, 0)
         };
 
@@ -150,7 +156,7 @@ public partial class FocusOverlay : Window
                 var currentExe = Process.GetCurrentProcess().MainModule?.FileName;
                 if (!string.IsNullOrEmpty(currentExe) && string.Equals(exePath, currentExe, StringComparison.OrdinalIgnoreCase))
                 {
-                    Application.Current.Dispatcher.Invoke(() =>
+                    Dispatcher.UIThread.Post(() =>
                     {
                         var mainWindow = ((Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime)Avalonia.Application.Current.ApplicationLifetime).MainWindow;
                         if (mainWindow != null)
@@ -183,18 +189,17 @@ public partial class FocusOverlay : Window
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Impossibile avviare {name}: {ex.Message}", "Errore",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                MsBox.Avalonia.MessageBoxManager.GetMessageBoxStandard("Errore", $"Impossibile avviare {name}: {ex.Message}").ShowAsync();
             }
         };
 
         // Hover effect
-        btn.MouseEnter += (_, _) =>
+        btn.PointerEntered += (_, _) =>
         {
             if (iconBorder.Child is TextBlock)
                 iconBorder.Background = new SolidColorBrush(Color.FromArgb(0x50, 0xFF, 0xFF, 0xFF));
         };
-        btn.MouseLeave += (_, _) =>
+        btn.PointerExited += (_, _) =>
         {
             iconBorder.Background = new SolidColorBrush(Color.FromArgb(0x30, 0xFF, 0xFF, 0xFF));
         };

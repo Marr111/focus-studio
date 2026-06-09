@@ -41,7 +41,7 @@ public partial class StatsViewModel : ObservableObject
 
     // ─── Aggiunta Manuale ─────────────────────────────────────────────────────
     [ObservableProperty] private int _manualSessionCount = 1;
-    [ObservableProperty] private DateTime _manualSessionDate = DateTime.Today;
+    [ObservableProperty] private DateTimeOffset? _manualSessionDate = DateTimeOffset.Now;
 
     public StatsViewModel()
     {
@@ -55,12 +55,12 @@ public partial class StatsViewModel : ObservableObject
     [RelayCommand]
     public async Task AddManualSessions()
     {
-        if (ManualSessionCount > 0)
+        if (ManualSessionCount > 0 && ManualSessionDate.HasValue)
         {
             var settings = new SettingsService().Load();
-            await _statsService.AddManualSessionsAsync(ManualSessionCount, ManualSessionDate, settings.FocusDuration);
+            await _statsService.AddManualSessionsAsync(ManualSessionCount, ManualSessionDate.Value.DateTime, settings.FocusDuration);
             ManualSessionCount = 1;
-            ManualSessionDate = DateTime.Today;
+            ManualSessionDate = DateTimeOffset.Now;
             await LoadStatsAsync();
         }
     }
