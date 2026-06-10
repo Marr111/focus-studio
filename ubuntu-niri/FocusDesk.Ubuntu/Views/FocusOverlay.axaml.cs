@@ -158,7 +158,7 @@ public partial class FocusOverlay : Window
                 {
                     Dispatcher.UIThread.Post(() =>
                     {
-                        var mainWindow = ((Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime)Avalonia.Application.Current.ApplicationLifetime).MainWindow;
+                        var mainWindow = (Avalonia.Application.Current?.ApplicationLifetime as Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime)?.MainWindow;
                         if (mainWindow != null)
                         {
                             if (mainWindow.WindowState == WindowState.Minimized)
@@ -189,7 +189,7 @@ public partial class FocusOverlay : Window
             }
             catch (Exception ex)
             {
-                MsBox.Avalonia.MessageBoxManager.GetMessageBoxStandard("Errore", $"Impossibile avviare {name}: {ex.Message}").ShowAsync();
+                _ = MsBox.Avalonia.MessageBoxManager.GetMessageBoxStandard("Errore", $"Impossibile avviare {name}: {ex.Message}").ShowAsync();
             }
         };
 

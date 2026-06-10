@@ -36,7 +36,7 @@ public class StatsService
         await using var db = _dbFactory();
         return await db.Sessions
             .Where(s => s.IsCompleted
-                        && s.Type == SessionType.Focus
+                        && (s.Type == SessionType.Focus || s.Type == SessionType.FocusManuale)
                         && s.StartTime.Date == DateTime.Today)
             .CountAsync();
     }
@@ -47,7 +47,7 @@ public class StatsService
         var startOfWeek = DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek + 1);
         return await db.Sessions
             .Where(s => s.IsCompleted
-                        && s.Type == SessionType.Focus
+                        && (s.Type == SessionType.Focus || s.Type == SessionType.FocusManuale)
                         && s.StartTime >= startOfWeek)
             .CountAsync();
     }
@@ -58,7 +58,7 @@ public class StatsService
         var startOfMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
         return await db.Sessions
             .Where(s => s.IsCompleted
-                        && s.Type == SessionType.Focus
+                        && (s.Type == SessionType.Focus || s.Type == SessionType.FocusManuale)
                         && s.StartTime >= startOfMonth)
             .CountAsync();
     }
@@ -67,7 +67,7 @@ public class StatsService
     {
         await using var db = _dbFactory();
         return await db.Sessions
-            .Where(s => s.IsCompleted && s.Type == SessionType.Focus)
+            .Where(s => s.IsCompleted && (s.Type == SessionType.Focus || s.Type == SessionType.FocusManuale))
             .CountAsync();
     }
 
@@ -75,7 +75,7 @@ public class StatsService
     {
         await using var db = _dbFactory();
         var dates = await db.Sessions
-            .Where(s => s.IsCompleted && s.Type == SessionType.Focus)
+            .Where(s => s.IsCompleted && (s.Type == SessionType.Focus || s.Type == SessionType.FocusManuale))
             .Select(s => s.StartTime.Date)
             .Distinct()
             .OrderByDescending(d => d)
@@ -112,7 +112,7 @@ public class StatsService
 
         var dbStats = await db.Sessions
             .Where(s => s.IsCompleted
-                        && s.Type == SessionType.Focus
+                        && (s.Type == SessionType.Focus || s.Type == SessionType.FocusManuale)
                         && s.StartTime.Date >= startDate)
             .GroupBy(s => s.StartTime.Date)
             .Select(g => new { Date = g.Key, Sessions = g.Count(), Minutes = g.Sum(s => s.DurationMinutes) })
@@ -135,7 +135,7 @@ public class StatsService
 
         var dbStats = await db.Sessions
             .Where(s => s.IsCompleted
-                        && s.Type == SessionType.Focus
+                        && (s.Type == SessionType.Focus || s.Type == SessionType.FocusManuale)
                         && s.StartTime.Date >= startDate)
             .GroupBy(s => s.StartTime.Date)
             .Select(g => new { Date = g.Key, Count = g.Count() })
@@ -201,7 +201,7 @@ public class StatsService
         await using var db = _dbFactory();
         return await db.Sessions
             .Where(s => s.IsCompleted
-                        && s.Type == SessionType.Focus
+                        && (s.Type == SessionType.Focus || s.Type == SessionType.FocusManuale)
                         && s.StartTime.Date == DateTime.Today)
             .SumAsync(s => s.DurationMinutes);
     }
@@ -217,12 +217,31 @@ public class StatsService
             {
                 StartTime = date,
                 EndTime = date.AddMinutes(durationMinutes),
-                Type = SessionType.Focus,
+                Type = SessionType.FocusManuale,
                 IsCompleted = true,
                 DurationMinutes = durationMinutes
             });
         }
         
         await db.SaveChangesAsync();
+    }
+    public async Task<List<Session>> GetAllFocusSessionsAsync()
+    {
+        await using var db = _dbFactory();
+        return await db.Sessions
+            .Where(s => s.IsCompleted && (s.Type == SessionType.Focus || s.Type == SessionType.FocusManuale))
+            .OrderByDescending(s => s.StartTime)
+            .ToListAsync();
+    }
+
+    public async Task DeleteSessionAsync(int sessionId)
+    {
+        await using var db = _dbFactory();
+        var session = await db.Sessions.FindAsync(sessionId);
+        if (session != null)
+        {
+            db.Sessions.Remove(session);
+            await db.SaveChangesAsync();
+        }
     }
 }

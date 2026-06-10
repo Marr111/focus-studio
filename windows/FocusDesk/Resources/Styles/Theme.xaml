@@ -17,6 +17,7 @@
     <conv:ModeTabBackgroundConverter x:Key="ModeTabBackground"/>
     <conv:ExePathToIconConverter x:Key="ExePathToIcon"/>
     <conv:SessionTypeToBackgroundConverter x:Key="SessionTypeToBackground"/>
+    <conv:ZeroToVisibilityConverter x:Key="ZeroToVisibility"/>
 
     <!-- ═══════════════════════════════════════════════════════════════════════
          COLORI PRINCIPALI

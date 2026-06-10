@@ -162,7 +162,7 @@ public partial class MainViewModel : ObservableObject
                 }
                 catch (UnauthorizedAccessException)
                 {
-                    MessageBoxManager.GetMessageBoxStandard("Privilegi insufficienti",
+                    _ = MessageBoxManager.GetMessageBoxStandard("Privilegi insufficienti",
                         "FocusDesk non ha i permessi per bloccare i siti web.\n" +
                         "Esegui l'app con sudo per il blocco.\n" +
                         "La Focus Mode e il timer si avvieranno comunque.",
@@ -170,7 +170,7 @@ public partial class MainViewModel : ObservableObject
                 }
                 catch (Exception ex)
                 {
-                    MessageBoxManager.GetMessageBoxStandard("Errore", $"Errore durante il blocco: {ex.Message}", ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error).ShowAsync();
+                    _ = MessageBoxManager.GetMessageBoxStandard("Errore", $"Errore durante il blocco: {ex.Message}", ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error).ShowAsync();
                 }
             }
         }
@@ -199,7 +199,7 @@ public partial class MainViewModel : ObservableObject
             }
             catch (Exception ex)
             {
-                MessageBoxManager.GetMessageBoxStandard("Errore", $"Errore durante lo sblocco: {ex.Message}").ShowAsync();
+                _ = MessageBoxManager.GetMessageBoxStandard("Errore", $"Errore durante lo sblocco: {ex.Message}").ShowAsync();
             }
         }
 

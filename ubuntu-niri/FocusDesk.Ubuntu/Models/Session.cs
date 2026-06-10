@@ -4,7 +4,8 @@ public enum SessionType
 {
     Focus,
     PausaBreve,
-    PausaLunga
+    PausaLunga,
+    FocusManuale
 }
 
 public class Session

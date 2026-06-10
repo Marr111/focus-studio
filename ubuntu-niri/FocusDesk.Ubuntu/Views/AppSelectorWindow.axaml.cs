@@ -88,7 +88,7 @@ public partial class AppSelectorWindow : Window
 
     private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
     {
-        var query = SearchBox.Text.ToLowerInvariant();
+        var query = SearchBox.Text?.ToLowerInvariant() ?? "";
         if (string.IsNullOrWhiteSpace(query))
         {
             AppsList.ItemsSource = _allApps;

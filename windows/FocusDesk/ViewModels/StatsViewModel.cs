@@ -1,14 +1,38 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using FocusDesk.Models;
 using FocusDesk.Services;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
 using SkiaSharp;
+using System.Collections.ObjectModel;
+using System.Windows;
 
 namespace FocusDesk.ViewModels;
 
 public record HeatmapDay(DateTime Date, int Sessions);
+
+/// <summary>Rappresenta un giorno con le sue sessioni nella cronologia.</summary>
+public class DayGroup : ObservableObject
+{
+    public string DateLabel { get; init; } = "";
+    public ObservableCollection<SessionItem> Sessions { get; init; } = new();
+}
+
+/// <summary>Wrapper ViewModel per una singola sessione visualizzata nella cronologia.</summary>
+public class SessionItem : ObservableObject
+{
+    public int Id { get; init; }
+    public DateTime StartTime { get; init; }
+    public SessionType Type { get; init; }
+    public int DurationMinutes { get; init; }
+
+    public string Icon => Type == SessionType.FocusManuale ? "✏️" : "🍅";
+    public string TypeLabel => Type == SessionType.FocusManuale ? "Manuale" : "Focus";
+    public string TimeLabel => StartTime.ToString("ddd dd MMM — HH:mm");
+    public string DurationLabel => $"{DurationMinutes} min";
+}
 
 public partial class StatsViewModel : ObservableObject
 {
@@ -39,6 +63,9 @@ public partial class StatsViewModel : ObservableObject
     // ─── Heatmap ──────────────────────────────────────────────────────────────
     [ObservableProperty] private List<HeatmapDay> _heatmapDays = new();
 
+    // ─── Cronologia Sessioni ──────────────────────────────────────────────────
+    [ObservableProperty] private ObservableCollection<DayGroup> _sessionHistory = new();
+
     // ─── Aggiunta Manuale ─────────────────────────────────────────────────────
     [ObservableProperty] private int _manualSessionCount = 1;
     [ObservableProperty] private DateTime _manualSessionDate = DateTime.Today;
@@ -63,6 +90,23 @@ public partial class StatsViewModel : ObservableObject
             ManualSessionDate = DateTime.Today;
             await LoadStatsAsync();
         }
+    }
+
+    [RelayCommand]
+    public async Task DeleteSession(SessionItem? item)
+    {
+        if (item == null) return;
+
+        var result = MessageBox.Show(
+            $"Eliminare il pomodoro del {item.TimeLabel}?",
+            "Conferma eliminazione",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Question);
+
+        if (result != MessageBoxResult.Yes) return;
+
+        await _statsService.DeleteSessionAsync(item.Id);
+        await LoadStatsAsync();
     }
 
     private async Task LoadStatsAsync()
@@ -200,5 +244,45 @@ public partial class StatsViewModel : ObservableObject
         // Carica dati heatmap (30 giorni)
         var last30 = await _statsService.GetLast30DaysAsync();
         HeatmapDays = last30.Select(d => new HeatmapDay(d.Date, d.Sessions)).ToList();
+
+        // ─── Carica cronologia sessioni raggruppate per giorno ───────────────
+        var allSessions = await _statsService.GetAllFocusSessionsAsync();
+
+        var grouped = allSessions
+            .GroupBy(s => s.StartTime.Date)
+            .OrderByDescending(g => g.Key)
+            .Select(g =>
+            {
+                var date = g.Key;
+                string dateTitle;
+                if (date == DateTime.Today)
+                    dateTitle = $"Oggi  ·  {g.Count()} 🍅";
+                else if (date == DateTime.Today.AddDays(-1))
+                    dateTitle = $"Ieri  ·  {g.Count()} 🍅";
+                else
+                    dateTitle = $"{date:dd MMM yyyy}  ·  {g.Count()} 🍅";
+
+                return new DayGroup
+                {
+                    DateLabel = dateTitle,
+                    Sessions = new ObservableCollection<SessionItem>(
+                        g.OrderByDescending(s => s.StartTime)
+                         .Select(s => new SessionItem
+                         {
+                             Id = s.Id,
+                             StartTime = s.StartTime,
+                             Type = s.Type,
+                             DurationMinutes = s.DurationMinutes
+                         }))
+                };
+            })
+            .ToList();
+
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+            SessionHistory.Clear();
+            foreach (var wg in grouped)
+                SessionHistory.Add(wg);
+        });
     }
 }

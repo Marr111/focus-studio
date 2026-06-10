@@ -202,6 +202,89 @@
                 </StackPanel>
             </Border>
 
+            <!-- ═══ CRONOLOGIA POMODORI PER GIORNO ═══ -->
+            <Border Classes="Card" Margin="0,0,0,16">
+                <StackPanel>
+
+                    <!-- Header -->
+                    <Grid Margin="0,0,0,12">
+                        <TextBlock Text="📋 Cronologia Sessioni" FontSize="14" FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextPrimary}"/>
+                        <TextBlock Text="Tutte le sessioni focus completate, raggruppate per giorno."
+                                   FontSize="11" Foreground="{StaticResource TextMuted}"
+                                   VerticalAlignment="Bottom" Margin="0,22,0,0"/>
+                    </Grid>
+
+                    <!-- Lista settimane -->
+                    <ItemsControl ItemsSource="{Binding SessionHistory}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:CompileBindings="False">
+                                <!-- Giorno -->
+                                <Expander IsExpanded="False" Margin="0,0,0,8" Background="Transparent" BorderThickness="0" Foreground="{StaticResource TextPrimary}">
+                                    <Expander.Header>
+                                        <TextBlock Text="{Binding DateLabel}" FontSize="13" FontWeight="SemiBold"
+                                                   Foreground="{StaticResource AccentFocus}" Margin="0,4"/>
+                                    </Expander.Header>
+
+                                    <!-- Sessioni del giorno -->
+                                    <ItemsControl ItemsSource="{Binding Sessions}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:CompileBindings="False">
+                                                <Border Margin="0,2" Padding="10,8" CornerRadius="8"
+                                                        Background="#0DFFFFFF">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+
+                                                        <!-- Icona tipo -->
+                                                        <TextBlock Grid.Column="0" Text="{Binding Icon}"
+                                                                   FontSize="16" VerticalAlignment="Center"
+                                                                   Margin="0,0,10,0"/>
+
+                                                        <!-- Data e orario -->
+                                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                            <TextBlock Text="{Binding TimeLabel}"
+                                                                       FontSize="13"
+                                                                       Foreground="{StaticResource TextPrimary}"/>
+                                                            <TextBlock Text="{Binding TypeLabel}"
+                                                                       FontSize="11"
+                                                                       Foreground="{StaticResource TextMuted}"/>
+                                                        </StackPanel>
+
+                                                        <!-- Durata -->
+                                                        <TextBlock Grid.Column="2" Text="{Binding DurationLabel}"
+                                                                   FontSize="12" FontWeight="SemiBold"
+                                                                   Foreground="{StaticResource TextSecondary}"
+                                                                   VerticalAlignment="Center"
+                                                                   Margin="0,0,12,0"/>
+
+                                                        <!-- Pulsante elimina -->
+                                                        <Button Grid.Column="3"
+                                                                Classes="BtnGhost"
+                                                                Content="🗑"
+                                                                FontSize="14"
+                                                                Padding="6,4"
+                                                                VerticalAlignment="Center"
+                                                                ToolTip.Tip="Elimina questa sessione"
+                                                                Command="{Binding $parent[UserControl].((vm:StatsViewModel)DataContext).DeleteSessionCommand}"
+                                                                CommandParameter="{Binding}"/>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Expander>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                </StackPanel>
+            </Border>
+
         </StackPanel>
     </ScrollViewer>
 </UserControl>
