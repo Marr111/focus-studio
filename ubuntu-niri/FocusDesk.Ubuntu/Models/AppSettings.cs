@@ -19,4 +19,5 @@ public class AppSettings
     public bool EnableFocusAssist { get; set; } = false;
     public bool MinimizeToTray { get; set; } = true;
     public bool ShowNotifications { get; set; } = true;
+    public string GeminiApiKey { get; set; } = "";
 }

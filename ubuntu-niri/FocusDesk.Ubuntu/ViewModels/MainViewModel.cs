@@ -42,6 +42,8 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private string _focusModeButtonText = "🚀 Avvia Focus Mode";
     [ObservableProperty] private AppSettings _settings;
 
+    public AIPlannerViewModel AIPlannerVm { get; }
+
     public ObservableCollection<TaskItem> Tasks { get; } = new();
 
     // ─── Costruttore ───────────────────────────────────────────────────────────
@@ -59,6 +61,8 @@ public partial class MainViewModel : ObservableObject
         _notificationService.Initialize();
 
         _settings = _settingsService.Load();
+
+        AIPlannerVm = new AIPlannerViewModel(this);
 
         _timerService.Tick += OnTimerTick;
         _timerService.Completed += OnTimerCompleted;

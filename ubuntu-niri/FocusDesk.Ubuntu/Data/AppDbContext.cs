@@ -11,6 +11,8 @@ public class AppDbContext : DbContext
     public DbSet<TaskItem> TaskItems { get; set; } = null!;
     public DbSet<AppWhitelistEntry> WhitelistEntries { get; set; } = null!;
     public DbSet<BlockedSite> BlockedSites { get; set; } = null!;
+    public DbSet<StudySession> StudySessions { get; set; } = null!;
+    public DbSet<Exam> Exams { get; set; } = null!;
 
     public AppDbContext() {}
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) {}
