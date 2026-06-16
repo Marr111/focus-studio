@@ -13,6 +13,7 @@ public class AppDbContext : DbContext
     public DbSet<BlockedSite> BlockedSites { get; set; } = null!;
     public DbSet<StudySession> StudySessions { get; set; } = null!;
     public DbSet<Exam> Exams { get; set; } = null!;
+    public DbSet<AppSettings> AppSettings { get; set; } = null!;
 
     public AppDbContext() {}
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) {}
@@ -39,44 +40,13 @@ public class AppDbContext : DbContext
             .HasForeignKey(s => s.TaskItemId)
             .OnDelete(DeleteBehavior.SetNull);
 
+        modelBuilder.Entity<AppSettings>(entity =>
+        {
+            entity.Property(e => e.Volume).HasColumnType("real");
+        });
+
         // Seed siti bloccati di default
         modelBuilder.Entity<BlockedSite>().HasData(
             new BlockedSite { Id = 1, Domain = "facebook.com", Category = "Social", IsEnabled = true },
             new BlockedSite { Id = 2, Domain = "instagram.com", Category = "Social", IsEnabled = true },
-            new BlockedSite { Id = 3, Domain = "twitter.com", Category = "Social", IsEnabled = true },
-            new BlockedSite { Id = 4, Domain = "x.com", Category = "Social", IsEnabled = true },
-            new BlockedSite { Id = 5, Domain = "tiktok.com", Category = "Social", IsEnabled = true },
-            new BlockedSite { Id = 6, Domain = "youtube.com", Category = "Video", IsEnabled = false },
-            new BlockedSite { Id = 7, Domain = "reddit.com", Category = "News", IsEnabled = true },
-            new BlockedSite { Id = 8, Domain = "twitch.tv", Category = "Video", IsEnabled = false }
-        );
-    }
-
-    public override int SaveChanges()
-    {
-        var result = base.SaveChanges();
-        _ = FocusDesk.Ubuntu.Services.GoogleDriveSyncService.UploadDbAsync();
-        return result;
-    }
-
-    public override int SaveChanges(bool acceptAllChangesOnSuccess)
-    {
-        var result = base.SaveChanges(acceptAllChangesOnSuccess);
-        _ = FocusDesk.Ubuntu.Services.GoogleDriveSyncService.UploadDbAsync();
-        return result;
-    }
-
-    public override async System.Threading.Tasks.Task<int> SaveChangesAsync(System.Threading.CancellationToken cancellationToken = default)
-    {
-        var result = await base.SaveChangesAsync(cancellationToken);
-        _ = FocusDesk.Ubuntu.Services.GoogleDriveSyncService.UploadDbAsync();
-        return result;
-    }
-
-    public override async System.Threading.Tasks.Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, System.Threading.CancellationToken cancellationToken = default)
-    {
-        var result = await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
-        _ = FocusDesk.Ubuntu.Services.GoogleDriveSyncService.UploadDbAsync();
-        return result;
-    }
-}
+            new Blocked

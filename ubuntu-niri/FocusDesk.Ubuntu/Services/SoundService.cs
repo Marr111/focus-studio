@@ -10,11 +10,12 @@ public class SoundService : IDisposable
     private readonly Player _alarmPlayer;
     private readonly Player _uiPlayer;
     private readonly string _soundsDir;
+    private readonly AppSettings _settings;
 
     private string _currentTickingPath = string.Empty;
     private bool _isTickingIntended;
 
-    public SoundService()
+    public SoundService(AppSettings settings)
     {
         var baseDir = AppDomain.CurrentDomain.BaseDirectory;
         _soundsDir = Path.Combine(baseDir, "Resources", "Sounds");
@@ -24,6 +25,8 @@ public class SoundService : IDisposable
 
         _alarmPlayer = new Player();
         _uiPlayer = new Player();
+
+        _settings = settings;
     }
 
     private void OnTickingFinished(object? sender, EventArgs e)
@@ -36,7 +39,7 @@ public class SoundService : IDisposable
 
     public void StartTicking(AppSettings settings)
     {
-        if (!settings.EnableTickingSound) return;
+        if (!settings.PlaySounds) return;
         var path = Path.Combine(_soundsDir, settings.SelectedTickingSound);
         if (File.Exists(path))
         {
@@ -54,7 +57,7 @@ public class SoundService : IDisposable
 
     public void PlayAlarm(AppSettings settings)
     {
-        if (!settings.EnableAlarmSound) return;
+        if (!settings.PlaySounds) return;
         var path = Path.Combine(_soundsDir, settings.SelectedAlarmSound);
         if (File.Exists(path))
         {

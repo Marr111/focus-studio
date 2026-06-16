@@ -1,3 +1,5 @@
+using System;
+
 namespace FocusDesk.Models;
 
 public class AppSettings
@@ -20,4 +22,5 @@ public class AppSettings
     public bool MinimizeToTray { get; set; } = true;
     public bool ShowNotifications { get; set; } = true;
     public string GeminiApiKey { get; set; } = "";
+    public double Volume { get; set; } = 100; // Nuova proprietà per il volume
 }

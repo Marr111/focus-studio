@@ -41,6 +41,7 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private bool _isFocusModeActive = false;
     [ObservableProperty] private string _focusModeButtonText = "🚀 Avvia Focus Mode";
     [ObservableProperty] private AppSettings _settings;
+    [ObservableProperty] private double _volume = 100; // Nuova proprietà per il volume
 
     public AIPlannerViewModel AIPlannerVm { get; }
 
@@ -55,7 +56,7 @@ public partial class MainViewModel : ObservableObject
         _hostsBlocker = new HostsBlocker();
         _desktopService = new DesktopService();
         _notificationService = new NotificationService();
-        SoundService = new SoundService();
+        SoundService = new SoundService(_settings);
         _focusAssistService = new FocusAssistService();
 
         _notificationService.Initialize();
@@ -262,7 +263,7 @@ public partial class MainViewModel : ObservableObject
             SoundService.StartTicking(Settings);
         }
 
-        // Focus Assist (Do Not Disturb) during focus sessions
+        // Focus Assist (Do Not Disturb) durante le sessioni di focus
         if (CurrentMode == SessionType.Focus && Settings.EnableFocusAssist)
         {
             _focusAssistService.EnableForSession();
