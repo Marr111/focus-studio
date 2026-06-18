@@ -25,6 +25,9 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty] private bool _autoStartFocus;
     [ObservableProperty] private bool _showNotifications;
     [ObservableProperty] private bool _minimizeToTray;
+    
+    // ─── AI Services ──────────────────────────────────────────────────────────
+    [ObservableProperty] private string _geminiApiKey = "";
 
     // ─── Suoni ────────────────────────────────────────────────────────────────
     [ObservableProperty] private bool _enableTickingSound;
@@ -32,6 +35,7 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty] private bool _enableAlarmSound;
     [ObservableProperty] private string _selectedAlarmSound = "";
     [ObservableProperty] private bool _enableUiSounds;
+    [ObservableProperty] private double _volume;
 
     public ObservableCollection<string> AvailableTickingSounds { get; } = new();
     public ObservableCollection<string> AvailableAlarmSounds { get; } = new();
@@ -66,6 +70,7 @@ public partial class SettingsViewModel : ObservableObject
         EnableAlarmSound = s.EnableAlarmSound;
         SelectedAlarmSound = s.SelectedAlarmSound;
         EnableUiSounds = s.EnableUiSounds;
+        Volume = s.Volume;
         
         AutoStartBreaks = s.AutoStartBreaks;
         AutoStartFocus = s.AutoStartFocus;
@@ -73,6 +78,7 @@ public partial class SettingsViewModel : ObservableObject
         MinimizeToTray = s.MinimizeToTray;
         EnableDesktopIsolation = s.EnableDesktopIsolation;
         EnableWebsiteBlocking = s.EnableWebsiteBlocking;
+        GeminiApiKey = s.GeminiApiKey;
 
         LoadAvailableSounds();
     }
@@ -125,6 +131,7 @@ public partial class SettingsViewModel : ObservableObject
         s.EnableAlarmSound = EnableAlarmSound;
         s.SelectedAlarmSound = SelectedAlarmSound;
         s.EnableUiSounds = EnableUiSounds;
+        s.Volume = Volume;
         
         s.AutoStartBreaks = AutoStartBreaks;
         s.AutoStartFocus = AutoStartFocus;
@@ -132,6 +139,7 @@ public partial class SettingsViewModel : ObservableObject
         s.MinimizeToTray = MinimizeToTray;
         s.EnableDesktopIsolation = EnableDesktopIsolation;
         s.EnableWebsiteBlocking = EnableWebsiteBlocking;
+        s.GeminiApiKey = GeminiApiKey;
 
         _mainVm.SaveSettings();
         MessageBoxManager.GetMessageBoxStandard("FocusDesk", "Impostazioni salvate!", MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Info).ShowAsync();
@@ -266,5 +274,10 @@ public partial class SettingsViewModel : ObservableObject
     {
         if (EnableAlarmSound)
             _ = _mainVm.SoundService.PlayPreviewAsync(value, 2000); // 2 seconds preview
+    }
+
+    partial void OnVolumeChanged(double value)
+    {
+        _mainVm.SoundService.UpdateVolume((byte)value);
     }
 }

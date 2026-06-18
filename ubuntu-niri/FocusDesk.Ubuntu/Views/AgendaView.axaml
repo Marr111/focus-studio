@@ -1,0 +1,153 @@
+<UserControl x:Class="FocusDesk.Views.AgendaView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:FocusDesk.ViewModels"
+             x:DataType="vm:AgendaViewModel"
+             Background="Transparent">
+
+    <Grid Margin="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header e Navigazione Data -->
+        <Border Grid.Row="0" Padding="24,16,24,12">
+            <StackPanel>
+                <TextBlock Text="Piano di Studio" FontSize="22" FontWeight="Bold"
+                           Foreground="{StaticResource TextPrimary}" Margin="0,0,0,8"/>
+                
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Button Grid.Column="0" Classes="BtnIcon" Content="◀" Command="{Binding PreviousDayCommand}"/>
+                    <TextBlock Grid.Column="1" Text="{Binding SelectedDate, StringFormat='{}{0:dd MMMM yyyy}'}" 
+                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                               FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}"/>
+                    <Button Grid.Column="2" Classes="BtnIcon" Content="▶" Command="{Binding NextDayCommand}" Margin="0,0,8,0"/>
+                    <Button Grid.Column="3" Classes="BtnGhost" Content="Oggi" Command="{Binding TodayCommand}" Padding="12,6"/>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- Aggiungi nuova sessione -->
+        <Border Grid.Row="1" Margin="24,0,24,16">
+            <Border Classes="Card" Padding="16">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Nuova Sessione di Studio" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}"/>
+                    
+                    <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,180" Margin="0">
+                        <!-- Column 0, Row 0: Materia -->
+                        <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,12,12">
+                            <TextBlock Text="Materia di Studio" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}"/>
+                            <TextBlock Text="Il corso o l'insegnamento (es. Analisi 1, Programmazione)" FontSize="10" Foreground="{StaticResource TextMuted}" Margin="0,2,0,4"/>
+                            <TextBox Classes="InputField" Text="{Binding NewSessionSubject}" Watermark="Materia..."/>
+                        </StackPanel>
+
+                        <!-- Column 1, Row 0: Fascia Oraria -->
+                        <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,0,12">
+                            <TextBlock Text="Fascia Oraria" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}"/>
+                            <TextBlock Text="Il momento della giornata in cui studierai" FontSize="10" Foreground="{StaticResource TextMuted}" Margin="0,2,0,4"/>
+                            <ComboBox SelectedIndex="{Binding NewSessionTimeOfDay, Mode=TwoWay}" HorizontalAlignment="Stretch">
+                                <ComboBoxItem>Mattina</ComboBoxItem>
+                                <ComboBoxItem>Pomeriggio</ComboBoxItem>
+                                <ComboBoxItem>Sera</ComboBoxItem>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <!-- Column 0, Row 1: Titolo -->
+                        <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,12,0">
+                            <TextBlock Text="Argomento / Titolo" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}"/>
+                            <TextBlock Text="L'attività specifica della sessione (es. Esercizi Capitolo 3)" FontSize="10" Foreground="{StaticResource TextMuted}" Margin="0,2,0,4"/>
+                            <TextBox Classes="InputField" Text="{Binding NewSessionTitle}" Watermark="Titolo..."/>
+                        </StackPanel>
+
+                        <!-- Column 1, Row 1: Ore -->
+                        <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,0,0">
+                            <TextBlock Text="Durata (Ore)" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}"/>
+                            <TextBlock Text="Le ore stimate (1 ora equivale a 2 pomodori)" FontSize="10" Foreground="{StaticResource TextMuted}" Margin="0,2,0,4"/>
+                            <NumericUpDown Value="{Binding NewSessionDurationHours}" Minimum="0.5" Maximum="12" Increment="0.5" HorizontalAlignment="Stretch"/>
+                        </StackPanel>
+                    </Grid>
+                    
+                    <!-- Descrizione -->
+                    <StackPanel Margin="0,0,0,4">
+                        <TextBlock Text="Descrizione Sessione" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}"/>
+                        <TextBlock Text="Note o dettagli opzionali per descrivere meglio lo studio da svolgere" FontSize="10" Foreground="{StaticResource TextMuted}" Margin="0,2,0,4"/>
+                        <TextBox Classes="InputField" Text="{Binding NewSessionDescription}" Watermark="Descrizione opzionale..."/>
+                    </StackPanel>
+                    
+                    <Button Classes="BtnPrimary" Content="Aggiungi all'Agenda" Command="{Binding AddSessionCommand}" HorizontalAlignment="Right"/>
+                </StackPanel>
+            </Border>
+        </Border>
+
+        <!-- Lista Sessioni -->
+        <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" Margin="24,0,24,24">
+            <StackPanel>
+                <!-- Placeholder se non ci sono sessioni -->
+                <TextBlock Text="Nessuna sessione programmata per questa data." 
+                           IsVisible="{Binding Sessions.Count, Converter={x:Static ObjectConverters.IsNull}}"
+                           Foreground="{StaticResource TextMuted}" HorizontalAlignment="Center" Margin="0,20,0,0"/>
+
+                <ItemsControl ItemsSource="{Binding Sessions}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:CompileBindings="False">
+                            <Border Classes="Card" Margin="0,0,0,8" Padding="14">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Time Indicator -->
+                                    <Border Grid.Column="0" Width="40" Height="40" CornerRadius="20" 
+                                            Background="{StaticResource BgElevated}" Margin="0,0,12,0">
+                                        <TextBlock Text="{Binding TimeOfDay}" FontSize="10" 
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                   Foreground="{StaticResource TextSecondary}"/>
+                                    </Border>
+
+                                    <!-- Content -->
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Subject}" FontSize="12" Foreground="{StaticResource AccentFocus}" FontWeight="Bold"/>
+                                        <TextBlock Text="{Binding Title}" FontSize="15" FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}" TextWrapping="Wrap"/>
+                                        <TextBlock Text="{Binding Description}" FontSize="12" Foreground="{StaticResource TextSecondary}" TextWrapping="Wrap" IsVisible="{Binding Description, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                                        <TextBlock FontSize="11" Foreground="{StaticResource TextMuted}" Margin="0,4,0,0">
+                                            <Run Text="Durata: "/>
+                                            <Run Text="{Binding DurationHours}"/>
+                                            <Run Text=" h"/>
+                                        </TextBlock>
+                                    </StackPanel>
+
+                                    <!-- Actions -->
+                                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <!-- Start as Task -->
+                                        <Button Classes="BtnPrimary" Content="▶ Pomodoro" 
+                                                Command="{Binding $parent[UserControl].DataContext.StartAsTaskCommand}"
+                                                CommandParameter="{Binding}"
+                                                Classes.Completed="{Binding IsMappedToTask}"
+                                                ToolTip.Tip="Aggiungi come Task e avvia"
+                                                Margin="0,0,8,0" Padding="12,6" FontSize="12"/>
+                                        <!-- Delete -->
+                                        <Button Classes="BtnIcon" Content="🗑" 
+                                                Command="{Binding $parent[UserControl].DataContext.DeleteSessionCommand}"
+                                                CommandParameter="{Binding}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

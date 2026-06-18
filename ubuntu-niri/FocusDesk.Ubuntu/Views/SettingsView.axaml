@@ -16,6 +16,19 @@
                         Content="💾 Salva" Command="{Binding SaveCommand}"
                         Padding="20,10" FontSize="13"/>
             </Grid>
+            <!-- ══════════ SERVIZI AI ══════════ -->
+            <TextBlock Text="🤖 SERVIZI AI" FontSize="10" FontWeight="Bold"
+                       Foreground="{StaticResource AccentFocus}" Margin="0,0,0,10"/>
+            <Border Classes="Card" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="Google Gemini API Key" FontSize="14" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimary}"/>
+                    <TextBlock Text="Necessaria per generare piani di studio intelligenti. Puoi ottenerla gratuitamente da Google AI Studio." FontSize="12"
+                               Foreground="{StaticResource TextMuted}" Margin="0,4,0,8" TextWrapping="Wrap"/>
+                    <TextBox Classes="InputField" Text="{Binding GeminiApiKey}" PasswordChar="•"
+                             Watermark="Incolla qui la tua API Key..."/>
+                </StackPanel>
+            </Border>
 
             <!-- ══════════ TIMER ══════════ -->
             <TextBlock Text="⏱ TIMER" FontSize="10" FontWeight="Bold"
@@ -170,7 +183,7 @@
                     </Grid>
                     <Border Height="1" Background="{StaticResource BorderColor}" Margin="0,8"/>
                     <!-- Suoni UI -->
-                    <Grid Margin="0,14,0,0">
+                    <Grid Margin="0,14,0,14">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
@@ -181,6 +194,22 @@
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1" IsChecked="{Binding EnableUiSounds}"
                                   VerticalAlignment="Center"/>
+                    </Grid>
+                    <Border Height="1" Background="{StaticResource BorderColor}" Margin="0,8"/>
+                    <!-- Regolazione Volume -->
+                    <Grid Margin="0,14,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="Regolazione Volume" FontSize="14" Foreground="{StaticResource TextPrimary}" FontWeight="SemiBold"/>
+                            <TextBlock Text="Regola il volume dell'applicazione" FontSize="12" Foreground="{StaticResource TextMuted}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Slider Minimum="0" Maximum="100" Value="{Binding Volume}" Width="150" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding Volume, StringFormat='{}{0:0}%'}" Width="40" Margin="10,0,0,0" VerticalAlignment="Center" FontSize="12" Foreground="{StaticResource TextPrimary}"/>
+                        </StackPanel>
                     </Grid>
                 </StackPanel>
             </Border>
@@ -305,7 +334,7 @@
                         </Grid.ColumnDefinitions>
                         <TextBox Grid.Column="0" Classes="InputField"
                                  Text="{Binding NewBlockedDomain}"
-                                 Tag="es. esempio.com" Margin="0,0,8,0">
+                                 Watermark="es. esempio.com" Margin="0,0,8,0">
                             <TextBox.KeyBindings>
                                 <KeyBinding Gesture="Enter" Command="{Binding AddBlockedSiteCommand}"/>
                             </TextBox.KeyBindings>

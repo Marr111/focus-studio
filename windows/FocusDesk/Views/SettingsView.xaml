@@ -168,7 +168,7 @@
                     </Grid>
                     <Separator/>
                     <!-- Suoni UI -->
-                    <Grid Margin="0,14,0,0">
+                    <Grid Margin="0,14,0,14">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
@@ -179,6 +179,22 @@
                         </StackPanel>
                         <CheckBox Grid.Column="1" Style="{StaticResource ToggleSwitch}" IsChecked="{Binding EnableUiSounds}"
                                   VerticalAlignment="Center"/>
+                    </Grid>
+                    <Separator/>
+                    <!-- Regolazione Volume -->
+                    <Grid Margin="0,14,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="Regolazione Volume" FontSize="14" Foreground="{StaticResource TextPrimary}" FontWeight="SemiBold"/>
+                            <TextBlock Text="Regola il volume dell'applicazione" FontSize="12" Foreground="{StaticResource TextMuted}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Slider Minimum="0" Maximum="100" Value="{Binding Volume}" Width="150" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding Volume, StringFormat='{}{0:0}%'}" Width="40" Margin="10,0,0,0" VerticalAlignment="Center" FontSize="12" Foreground="{StaticResource TextPrimary}"/>
+                        </StackPanel>
                     </Grid>
                 </StackPanel>
             </Border>

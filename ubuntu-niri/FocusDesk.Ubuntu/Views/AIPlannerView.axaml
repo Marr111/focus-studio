@@ -1,0 +1,147 @@
+<UserControl x:Class="FocusDesk.Views.AIPlannerView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:FocusDesk.ViewModels"
+             x:DataType="vm:AIPlannerViewModel"
+             Background="Transparent">
+
+    <Grid Margin="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Padding="24,16,24,12">
+            <TextBlock Text="Generatore AI Piano di Studio" FontSize="22" FontWeight="Bold"
+                       Foreground="{StaticResource TextPrimary}"/>
+        </Border>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="24,0,24,24" Spacing="24">
+                
+                <!-- 1. Esami -->
+                <Border Classes="Card" Padding="16">
+                    <StackPanel Spacing="12">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Grid.Column="0" Text="1. Quali esami devi preparare?" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}" VerticalAlignment="Center"/>
+                            <Button Grid.Column="1" Classes="BtnPrimary" Content="+ Aggiungi Materia" Command="{Binding AddExamCommand}"/>
+                        </Grid>
+                        <TextBlock Text="Aggiungi qui sotto gli esami e le eventuali date previste (Scritto, Orale, ecc.)." FontSize="12" Foreground="{StaticResource TextMuted}"/>
+                        
+                        <ItemsControl ItemsSource="{Binding Exams}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:CompileBindings="False">
+                                    <Border BorderBrush="{StaticResource BorderColor}" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,8" Background="{StaticResource BgSecondary}">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <StackPanel Grid.Column="0" Spacing="8">
+                                                <TextBox Text="{Binding Name}" Classes="InputField" Watermark="Nome materia..."/>
+                                                
+                                                <!-- Date Grid -->
+                                                <Grid ColumnDefinitions="*,*,*,*">
+                                                    <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                                                        <CheckBox Content="Scritto" IsChecked="{Binding HasWrittenExam}" FontSize="11" Foreground="{StaticResource TextSecondary}" Margin="0,-4,0,0"/>
+                                                        <CalendarDatePicker SelectedDate="{Binding WrittenDate, Mode=TwoWay}" HorizontalAlignment="Stretch" Watermark="Senza data" IsEnabled="{Binding HasWrittenExam}"/>
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                                                        <CheckBox Content="Quiz" IsChecked="{Binding HasQuiz}" FontSize="11" Foreground="{StaticResource TextSecondary}" Margin="0,-4,0,0"/>
+                                                        <CalendarDatePicker SelectedDate="{Binding QuizDate, Mode=TwoWay}" HorizontalAlignment="Stretch" Watermark="Senza data" IsEnabled="{Binding HasQuiz}"/>
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="2" Margin="0,0,8,0">
+                                                        <CheckBox Content="Orale" IsChecked="{Binding HasOralExam}" FontSize="11" Foreground="{StaticResource TextSecondary}" Margin="0,-4,0,0"/>
+                                                        <CalendarDatePicker SelectedDate="{Binding OralDate, Mode=TwoWay}" HorizontalAlignment="Stretch" Watermark="Senza data" IsEnabled="{Binding HasOralExam}"/>
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="3">
+                                                        <CheckBox Content="Pratica" IsChecked="{Binding HasPracticalExam}" FontSize="11" Foreground="{StaticResource TextSecondary}" Margin="0,-4,0,0"/>
+                                                        <CalendarDatePicker SelectedDate="{Binding PracticalDate, Mode=TwoWay}" HorizontalAlignment="Stretch" Watermark="Senza data" IsEnabled="{Binding HasPracticalExam}"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </StackPanel>
+                                            
+                                            <!-- Delete Button -->
+                                            <Button Grid.Column="1" Classes="BtnIcon" Content="🗑" Margin="12,0,0,0" VerticalAlignment="Center"
+                                                    Command="{Binding $parent[UserControl].DataContext.DeleteExamCommand}" CommandParameter="{Binding}"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- 2. Materiali e Note -->
+                <Border Classes="Card" Padding="16">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="2. Materiali e Preferenze" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}"/>
+                        <TextBlock Text="Allega file (PDF, TXT, MD, CSV) contenenti programmi o appunti in modo che l'IA possa analizzarli." FontSize="12" Foreground="{StaticResource TextMuted}"/>
+                        
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Grid.Column="0" Text="{Binding UploadedFilesSummary}" FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource AccentFocus}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                                <Button Classes="BtnGhost" Content="Carica Cartella..." Click="UploadFolder_Click"/>
+                                <Button Classes="BtnGhost" Content="Carica File..." Click="UploadFiles_Click"/>
+                            </StackPanel>
+                        </Grid>
+                        
+                        <TextBlock Text="Note aggiuntive per l'IA:" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}" Margin="0,8,0,0"/>
+                        <TextBox Classes="InputField" Height="80" AcceptsReturn="True" TextWrapping="Wrap" Text="{Binding AdditionalNotes}" Watermark="Es. 'Non posso studiare il sabato e la domenica' oppure 'Voglio preparare lo scritto di Analisi prima di tutto'"/>
+                    </StackPanel>
+                </Border>
+                
+                <!-- 3. Generazione -->
+                <Border Classes="Card" Padding="16">
+                    <StackPanel Spacing="16">
+                        <TextBlock Text="3. Genera e Importa" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}"/>
+                        
+                        <Button Classes="BtnPrimary" Content="✨ GENERA PIANO DI STUDIO" Command="{Binding GeneratePlanCommand}" 
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" FontSize="16" Padding="12"/>
+                                
+                        <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsGenerating}" Margin="0,8"/>
+                        
+                        <!-- Lista Anteprima -->
+                        <ItemsControl ItemsSource="{Binding GeneratedSessions}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:CompileBindings="False">
+                                    <Border BorderBrush="{StaticResource BorderColor}" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,8" Background="{StaticResource BgSecondary}">
+                                        <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+                                            <StackPanel Grid.Column="0" Width="130" VerticalAlignment="Center" Margin="0,0,12,0">
+                                                <!-- CalendarDatePicker SelectedDate is DateTime? so binding to StudySession.Date needs to be careful if it's DateTime, but it works natively -->
+                                                <CalendarDatePicker SelectedDate="{Binding Date, Mode=TwoWay}" Width="120"/>
+                                            </StackPanel>
+                                            
+                                            <StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Center" Margin="0,0,12,0">
+                                                <TextBox Classes="InputField" Text="{Binding Subject}" FontWeight="Bold"/>
+                                                <TextBox Classes="InputField" Text="{Binding Title}" FontSize="12"/>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Column="2" Spacing="4" VerticalAlignment="Center" Margin="0,0,12,0">
+                                                <ComboBox SelectedIndex="{Binding TimeOfDay, Mode=TwoWay}" Width="140">
+                                                    <ComboBoxItem>Mattina</ComboBoxItem>
+                                                    <ComboBoxItem>Pomeriggio</ComboBoxItem>
+                                                    <ComboBoxItem>Sera</ComboBoxItem>
+                                                </ComboBox>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="Ore:" VerticalAlignment="Center" Margin="0,0,4,0" FontSize="12" Foreground="{StaticResource TextSecondary}"/>
+                                                    <NumericUpDown Value="{Binding DurationHours}" Minimum="0.5" Maximum="12" Increment="0.5" Width="100"/>
+                                                </StackPanel>
+                                            </StackPanel>
+                                            
+                                            <Button Grid.Column="3" Classes="BtnIcon" Content="🗑" VerticalAlignment="Center"
+                                                    Command="{Binding $parent[UserControl].DataContext.RemoveGeneratedSessionCommand}" CommandParameter="{Binding}"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        
+                        <!-- Button Importa, visible only if there are items -->
+                        <Button Classes="BtnPrimary" Content="💾 Conferma e Importa in Agenda" Command="{Binding ImportPlanToAgendaCommand}" 
+                                IsVisible="{Binding GeneratedSessions.Count, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                HorizontalAlignment="Right" FontSize="14" Padding="20,10"/>
+                    </StackPanel>
+                </Border>
+                
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

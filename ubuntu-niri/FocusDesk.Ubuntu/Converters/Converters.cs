@@ -107,6 +107,7 @@ namespace FocusDesk.Converters
         {
             var str = value?.ToString();
             if (str == "Focus") return new SolidColorBrush(Color.Parse("#E94560"));
+            if (str == "FocusManuale") return new SolidColorBrush(Color.Parse("#FF8C42"));
             if (str == "PausaBreve") return new SolidColorBrush(Color.Parse("#4CAF91"));
             if (str == "PausaLunga") return new SolidColorBrush(Color.Parse("#457BBD"));
             return new SolidColorBrush(Color.Parse("#E94560"));

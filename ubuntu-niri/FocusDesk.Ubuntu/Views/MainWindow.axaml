@@ -216,6 +216,8 @@
                             </Button>
                         </Border>
 
+
+
                     </StackPanel>
                 </ScrollViewer>
 
@@ -294,13 +296,7 @@
                 </Grid>
             </Border>
 
-            <!-- Nuovo slider per il volume -->
-            <Border Grid.Row="1" Margin="24,24,24,0" Background="{StaticResource BgCard}" CornerRadius="12" Padding="16">
-                <StackPanel>
-                    <TextBlock Text="Volume" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,12"/>
-                    <Slider Minimum="0" Maximum="100" Value="{Binding Volume}" Width="280" HorizontalAlignment="Center"/>
-                </StackPanel>
-            </Border>
+
         </Grid>
     </Border>
 </Window>

@@ -68,7 +68,7 @@ public partial class StatsViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<DayGroup> _sessionHistory = new();
 
     // ─── Aggiunta Manuale ─────────────────────────────────────────────────────
-    [ObservableProperty] private int _manualSessionCount = 1;
+    [ObservableProperty] private string _manualSessionCount = "1";
     [ObservableProperty] private DateTimeOffset? _manualSessionDate = DateTimeOffset.Now;
 
     public StatsViewModel()
@@ -83,11 +83,11 @@ public partial class StatsViewModel : ObservableObject
     [RelayCommand]
     public async Task AddManualSessions()
     {
-        if (ManualSessionCount > 0 && ManualSessionDate.HasValue)
+        if (int.TryParse(ManualSessionCount, out var count) && count > 0 && ManualSessionDate.HasValue)
         {
             var settings = new SettingsService().Load();
-            await _statsService.AddManualSessionsAsync(ManualSessionCount, ManualSessionDate.Value.DateTime, settings.FocusDuration);
-            ManualSessionCount = 1;
+            await _statsService.AddManualSessionsAsync(count, ManualSessionDate.Value.DateTime, settings.FocusDuration);
+            ManualSessionCount = "1";
             ManualSessionDate = DateTimeOffset.Now;
             await LoadStatsAsync();
         }
@@ -105,20 +105,20 @@ public partial class StatsViewModel : ObservableObject
 
     private async Task LoadStatsAsync()
     {
-        // Carica metriche
-        TodaySessions = await _statsService.GetTodaySessionsAsync();
-        WeekSessions = await _statsService.GetWeekSessionsAsync();
-        MonthSessions = await _statsService.GetMonthSessionsAsync();
-        TotalSessions = await _statsService.GetTotalSessionsAsync();
-        StreakDays = await _statsService.GetStreakDaysAsync();
-        TodayMinutes = await _statsService.GetTodayMinutesAsync();
+        // 1. Eseguiamo tutti i calcoli e query in background
+        var todaySessions = await _statsService.GetTodaySessionsAsync();
+        var weekSessions = await _statsService.GetWeekSessionsAsync();
+        var monthSessions = await _statsService.GetMonthSessionsAsync();
+        var totalSessions = await _statsService.GetTotalSessionsAsync();
+        var streakDays = await _statsService.GetStreakDaysAsync();
+        var todayMinutes = await _statsService.GetTodayMinutesAsync();
 
         // Carica dati per grafico settimanale
         var weeklyData = await _statsService.GetLast7DaysAsync();
         var values = weeklyData.Select(d => (double)d.Sessions).ToArray();
         var labels = weeklyData.Select(d => d.Label).ToArray();
 
-        WeeklySeries = new ISeries[]
+        var weeklySeries = new ISeries[]
         {
             new ColumnSeries<double>
             {
@@ -130,7 +130,7 @@ public partial class StatsViewModel : ObservableObject
             }
         };
 
-        WeeklyXAxes = new Axis[]
+        var weeklyXAxes = new Axis[]
         {
             new Axis
             {
@@ -141,7 +141,7 @@ public partial class StatsViewModel : ObservableObject
             }
         };
 
-        WeeklyYAxes = new Axis[]
+        var weeklyYAxes = new Axis[]
         {
             new Axis
             {
@@ -158,7 +158,7 @@ public partial class StatsViewModel : ObservableObject
         var hourlyValues = hourlyData.Select(d => (double)d.Count).ToArray();
         var hourlyLabels = hourlyData.Select(d => d.Label).ToArray();
 
-        HourlySeries = new ISeries[]
+        var hourlySeries = new ISeries[]
         {
             new ColumnSeries<double>
             {
@@ -170,7 +170,7 @@ public partial class StatsViewModel : ObservableObject
             }
         };
 
-        HourlyXAxes = new Axis[]
+        var hourlyXAxes = new Axis[]
         {
             new Axis
             {
@@ -182,7 +182,7 @@ public partial class StatsViewModel : ObservableObject
             }
         };
 
-        HourlyYAxes = new Axis[]
+        var hourlyYAxes = new Axis[]
         {
             new Axis
             {
@@ -199,7 +199,7 @@ public partial class StatsViewModel : ObservableObject
         var allTimeHourlyValues = allTimeHourlyData.Select(d => (double)d.Count).ToArray();
         var allTimeHourlyLabels = allTimeHourlyData.Select(d => d.Label).ToArray();
 
-        AllTimeHourlySeries = new ISeries[]
+        var allTimeHourlySeries = new ISeries[]
         {
             new ColumnSeries<double>
             {
@@ -211,7 +211,7 @@ public partial class StatsViewModel : ObservableObject
             }
         };
 
-        AllTimeHourlyXAxes = new Axis[]
+        var allTimeHourlyXAxes = new Axis[]
         {
             new Axis
             {
@@ -223,7 +223,7 @@ public partial class StatsViewModel : ObservableObject
             }
         };
 
-        AllTimeHourlyYAxes = new Axis[]
+        var allTimeHourlyYAxes = new Axis[]
         {
             new Axis
             {
@@ -237,9 +237,9 @@ public partial class StatsViewModel : ObservableObject
 
         // Carica dati heatmap (30 giorni)
         var last30 = await _statsService.GetLast30DaysAsync();
-        HeatmapDays = last30.Select(d => new HeatmapDay(d.Date, d.Sessions)).ToList();
+        var heatmapDays = last30.Select(d => new HeatmapDay(d.Date, d.Sessions)).ToList();
 
-        // ─── Carica cronologia sessioni raggruppate per giorno ───────────────
+        // Carica cronologia sessioni raggruppate per giorno
         var allSessions = await _statsService.GetAllFocusSessionsAsync();
 
         var grouped = allSessions
@@ -272,8 +272,30 @@ public partial class StatsViewModel : ObservableObject
             })
             .ToList();
 
+        // 2. Assegniamo tutte le proprietà dell'interfaccia grafica sul thread UI di Avalonia
         Dispatcher.UIThread.Post(() =>
         {
+            TodaySessions = todaySessions;
+            WeekSessions = weekSessions;
+            MonthSessions = monthSessions;
+            TotalSessions = totalSessions;
+            StreakDays = streakDays;
+            TodayMinutes = todayMinutes;
+
+            WeeklySeries = weeklySeries;
+            WeeklyXAxes = weeklyXAxes;
+            WeeklyYAxes = weeklyYAxes;
+
+            HourlySeries = hourlySeries;
+            HourlyXAxes = hourlyXAxes;
+            HourlyYAxes = hourlyYAxes;
+
+            AllTimeHourlySeries = allTimeHourlySeries;
+            AllTimeHourlyXAxes = allTimeHourlyXAxes;
+            AllTimeHourlyYAxes = allTimeHourlyYAxes;
+
+            HeatmapDays = heatmapDays;
+
             SessionHistory.Clear();
             foreach (var wg in grouped)
                 SessionHistory.Add(wg);

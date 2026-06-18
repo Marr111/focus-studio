@@ -173,16 +173,30 @@ public partial class FocusOverlay : Window
                     return;
                 }
 
-                var startInfo = new ProcessStartInfo
+                ProcessStartInfo startInfo;
+                if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux))
                 {
-                    FileName = targetPath,
-                    UseShellExecute = true
-                };
+                    startInfo = new ProcessStartInfo
+                    {
+                        FileName = "bash",
+                        Arguments = $"-c \"{targetPath.Replace("\"", "\\\"")} &\"",
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    };
+                }
+                else
+                {
+                    startInfo = new ProcessStartInfo
+                    {
+                        FileName = targetPath,
+                        UseShellExecute = true
+                    };
 
-                if (targetPath.EndsWith("chrome.exe", StringComparison.OrdinalIgnoreCase) || 
-                    targetPath.EndsWith("brave.exe", StringComparison.OrdinalIgnoreCase))
-                {
-                    startInfo.Arguments = "\"https://www.polito.it\" \"https://gemini.google.com\"";
+                    if (targetPath.EndsWith("chrome.exe", StringComparison.OrdinalIgnoreCase) || 
+                        targetPath.EndsWith("brave.exe", StringComparison.OrdinalIgnoreCase))
+                    {
+                        startInfo.Arguments = "\"https://www.polito.it\" \"https://gemini.google.com\"";
+                    }
                 }
 
                 Process.Start(startInfo);

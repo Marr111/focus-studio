@@ -22,7 +22,7 @@
         
         <TextBox Grid.Row="2" x:Name="SearchBox" TextChanged="SearchBox_TextChanged"
                  Classes="InputField" Margin="0,0,0,12" IsVisible="False"
-                 Tag="Cerca programma..."/>
+                 Watermark="Cerca programma..."/>
                    
         <ListBox x:Name="AppsList" Grid.Row="3" Background="#16213E" BorderBrush="#2A2A4A"
                  Foreground="#EAEAEA" ScrollViewer.VerticalScrollBarVisibility="Auto" IsVisible="False">

@@ -1,0 +1,9 @@
+.aider*
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+run_err.txt
+*.log

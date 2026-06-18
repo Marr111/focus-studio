@@ -15,6 +15,7 @@ public partial class MainWindow : Window
     public TasksViewModel TasksVm { get; }
     public StatsViewModel StatsVm { get; }
     public SettingsViewModel SettingsVm { get; }
+    public AgendaViewModel AgendaVm { get; }
 
     public void Close_Click(object? sender, RoutedEventArgs e) => Close();
     
@@ -33,14 +34,17 @@ public partial class MainWindow : Window
     {
         MainVm = new MainViewModel();
         TasksVm = new TasksViewModel(MainVm);
+        AgendaVm = new AgendaViewModel(MainVm, TasksVm);
         StatsVm = new StatsViewModel();
         SettingsVm = new SettingsViewModel(MainVm);
 
         InitializeComponent();
 
         TasksTab.DataContext = TasksVm;
+        AgendaTab.DataContext = AgendaVm;
         StatsTab.DataContext = StatsVm;
         SettingsTab.DataContext = SettingsVm;
+        AIPlannerTab.DataContext = MainVm.AIPlannerVm;
         DataContext = MainVm;
 
         _activeNavColor = new SolidColorBrush(Color.FromRgb(0xE9, 0x45, 0x60));
@@ -112,12 +116,28 @@ public partial class MainWindow : Window
         SetActiveNav(NavSettings);
     }
 
+    private void NavAgenda_Click(object sender, RoutedEventArgs e)
+    {
+        ShowTab(AgendaTab);
+        SetActiveNav(NavAgenda);
+        _ = AgendaVm.LoadSessionsAsync();
+    }
+
+    private void NavAIPlanner_Click(object sender, RoutedEventArgs e)
+    {
+        ShowTab(AIPlannerTab);
+        SetActiveNav(NavAIPlanner);
+        // _ = MainVm.AIPlannerVm.LoadExamsAsync(); can be called if needed, but it loads in ctor
+    }
+
     private void ShowTab(Control target)
     {
         TimerTab.IsVisible = false;
         TasksTab.IsVisible = false;
+        AgendaTab.IsVisible = false;
         StatsTab.IsVisible = false;
         SettingsTab.IsVisible = false;
+        AIPlannerTab.IsVisible = false;
         target.IsVisible = true;
     }
 

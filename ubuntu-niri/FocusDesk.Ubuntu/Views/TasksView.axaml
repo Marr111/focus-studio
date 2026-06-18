@@ -37,7 +37,7 @@
                         </Grid.ColumnDefinitions>
                         <TextBox Grid.Column="0" Classes="InputField"
                                  Text="{Binding NewTaskTitle}"
-                                 Tag="Aggiungi nuova attività..." Margin="0,0,8,0">
+                                 Watermark="Aggiungi nuova attività..." Margin="0,0,8,0">
                             <TextBox.KeyBindings>
                                 <KeyBinding Gesture="Enter" Command="{Binding AddTaskCommand}"/>
                             </TextBox.KeyBindings>

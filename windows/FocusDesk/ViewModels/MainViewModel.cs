@@ -51,12 +51,12 @@ public partial class MainViewModel : ObservableObject
         _hostsBlocker = new HostsBlocker();
         _desktopService = new DesktopService();
         _notificationService = new NotificationService();
+        _settings = _settingsService.Load();
         SoundService = new SoundService();
+        SoundService.UpdateVolume((byte)_settings.Volume);
         _focusAssistService = new FocusAssistService();
 
         _notificationService.Initialize();
-
-        _settings = _settingsService.Load();
 
         _timerService.Tick += OnTimerTick;
         _timerService.Completed += OnTimerCompleted;
@@ -86,7 +86,7 @@ public partial class MainViewModel : ObservableObject
             if (_timerService.State == TimerState.Paused)
             {
                 _timerService.Resume();
-                SoundService.StartTicking(Settings);
+                UpdateTickingState();
             }
             else
             {
@@ -251,10 +251,7 @@ public partial class MainViewModel : ObservableObject
             SoundService.PlayUiSound(Settings, "button.wav");
         }
 
-        if (CurrentMode == SessionType.Focus)
-        {
-            SoundService.StartTicking(Settings);
-        }
+        UpdateTickingState();
 
         // Focus Assist (Do Not Disturb) during focus sessions
         if (CurrentMode == SessionType.Focus && Settings.EnableFocusAssist)
@@ -276,6 +273,39 @@ public partial class MainViewModel : ObservableObject
         UpdateDisplay(remaining);
         var total = _timerService.TotalDuration.TotalSeconds;
         Progress = total > 0 ? remaining.TotalSeconds / total : 0;
+        UpdateTickingState();
+    }
+
+    private void UpdateTickingState()
+    {
+        if (_timerService.State == TimerState.Running && CurrentMode == SessionType.Focus)
+        {
+            var total = _timerService.TotalDuration.TotalSeconds;
+            var remaining = _timerService.Remaining.TotalSeconds;
+            var elapsed = total - remaining;
+
+            if (elapsed <= 5 || remaining <= 5)
+            {
+                if (!SoundService.IsTicking)
+                {
+                    SoundService.StartTicking(Settings);
+                }
+            }
+            else
+            {
+                if (SoundService.IsTicking)
+                {
+                    SoundService.StopTicking();
+                }
+            }
+        }
+        else
+        {
+            if (SoundService.IsTicking)
+            {
+                SoundService.StopTicking();
+            }
+        }
     }
 
     private async void OnTimerCompleted(object? sender, EventArgs e)

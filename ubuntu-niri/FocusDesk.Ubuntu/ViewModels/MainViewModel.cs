@@ -41,7 +41,6 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private bool _isFocusModeActive = false;
     [ObservableProperty] private string _focusModeButtonText = "🚀 Avvia Focus Mode";
     [ObservableProperty] private AppSettings _settings;
-    [ObservableProperty] private double _volume = 100; // Nuova proprietà per il volume
 
     public AIPlannerViewModel AIPlannerVm { get; }
 
@@ -56,12 +55,12 @@ public partial class MainViewModel : ObservableObject
         _hostsBlocker = new HostsBlocker();
         _desktopService = new DesktopService();
         _notificationService = new NotificationService();
+
+        _settings = _settingsService.Load();
         SoundService = new SoundService(_settings);
         _focusAssistService = new FocusAssistService();
 
         _notificationService.Initialize();
-
-        _settings = _settingsService.Load();
 
         AIPlannerVm = new AIPlannerViewModel(this);
 
@@ -74,6 +73,8 @@ public partial class MainViewModel : ObservableObject
 
         _ = LoadDataAsync();
     }
+
+
 
     // ─── Comandi Timer ─────────────────────────────────────────────────────────
     [RelayCommand]
@@ -93,7 +94,7 @@ public partial class MainViewModel : ObservableObject
             if (_timerService.State == TimerState.Paused)
             {
                 _timerService.Resume();
-                SoundService.StartTicking(Settings);
+                UpdateTickingState();
             }
             else
             {
@@ -258,10 +259,7 @@ public partial class MainViewModel : ObservableObject
             SoundService.PlayUiSound(Settings, "button.wav");
         }
 
-        if (CurrentMode == SessionType.Focus)
-        {
-            SoundService.StartTicking(Settings);
-        }
+        UpdateTickingState();
 
         // Focus Assist (Do Not Disturb) durante le sessioni di focus
         if (CurrentMode == SessionType.Focus && Settings.EnableFocusAssist)
@@ -283,6 +281,39 @@ public partial class MainViewModel : ObservableObject
         UpdateDisplay(remaining);
         var total = _timerService.TotalDuration.TotalSeconds;
         Progress = total > 0 ? remaining.TotalSeconds / total : 0;
+        UpdateTickingState();
+    }
+
+    private void UpdateTickingState()
+    {
+        if (_timerService.State == TimerState.Running && CurrentMode == SessionType.Focus)
+        {
+            var total = _timerService.TotalDuration.TotalSeconds;
+            var remaining = _timerService.Remaining.TotalSeconds;
+            var elapsed = total - remaining;
+
+            if (elapsed <= 5 || remaining <= 5)
+            {
+                if (!SoundService.IsTicking)
+                {
+                    SoundService.StartTicking(Settings);
+                }
+            }
+            else
+            {
+                if (SoundService.IsTicking)
+                {
+                    SoundService.StopTicking();
+                }
+            }
+        }
+        else
+        {
+            if (SoundService.IsTicking)
+            {
+                SoundService.StopTicking();
+            }
+        }
     }
 
     private async void OnTimerCompleted(object? sender, EventArgs e)

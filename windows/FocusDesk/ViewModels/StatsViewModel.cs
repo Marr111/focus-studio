@@ -67,7 +67,7 @@ public partial class StatsViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<DayGroup> _sessionHistory = new();
 
     // ─── Aggiunta Manuale ─────────────────────────────────────────────────────
-    [ObservableProperty] private int _manualSessionCount = 1;
+    [ObservableProperty] private string _manualSessionCount = "1";
     [ObservableProperty] private DateTime _manualSessionDate = DateTime.Today;
 
     public StatsViewModel()
@@ -82,11 +82,11 @@ public partial class StatsViewModel : ObservableObject
     [RelayCommand]
     public async Task AddManualSessions()
     {
-        if (ManualSessionCount > 0)
+        if (int.TryParse(ManualSessionCount, out var count) && count > 0)
         {
             var settings = new SettingsService().Load();
-            await _statsService.AddManualSessionsAsync(ManualSessionCount, ManualSessionDate, settings.FocusDuration);
-            ManualSessionCount = 1;
+            await _statsService.AddManualSessionsAsync(count, ManualSessionDate, settings.FocusDuration);
+            ManualSessionCount = "1";
             ManualSessionDate = DateTime.Today;
             await LoadStatsAsync();
         }

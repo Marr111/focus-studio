@@ -15,6 +15,10 @@ public class SoundService : IDisposable
     private MediaPlayer? _tickingPlayer;
     private MediaPlayer? _alarmPlayer;
     private MediaPlayer? _uiPlayer;
+    private bool _isTicking;
+    private double _volume = 1.0;
+
+    public bool IsTicking => _isTicking;
 
     public SoundService()
     {
@@ -36,6 +40,17 @@ public class SoundService : IDisposable
         });
     }
 
+    public void UpdateVolume(byte volume)
+    {
+        _volume = volume / 100.0;
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+            if (_tickingPlayer != null) _tickingPlayer.Volume = _volume;
+            if (_alarmPlayer != null) _alarmPlayer.Volume = _volume;
+            if (_uiPlayer != null) _uiPlayer.Volume = _volume;
+        });
+    }
+
     public void StartTicking(AppSettings settings)
     {
         if (!settings.EnableTickingSound || string.IsNullOrEmpty(settings.SelectedTickingSound)) return;
@@ -43,15 +58,21 @@ public class SoundService : IDisposable
         var path = Path.Combine(_soundsDir, settings.SelectedTickingSound);
         if (!File.Exists(path)) return;
 
+        _isTicking = true;
         Application.Current.Dispatcher.Invoke(() =>
         {
-            _tickingPlayer?.Open(new Uri(path));
-            _tickingPlayer?.Play();
+            if (_tickingPlayer != null)
+            {
+                _tickingPlayer.Open(new Uri(path));
+                _tickingPlayer.Volume = _volume;
+                _tickingPlayer.Play();
+            }
         });
     }
 
     public void StopTicking()
     {
+        _isTicking = false;
         Application.Current.Dispatcher.Invoke(() =>
         {
             _tickingPlayer?.Stop();
@@ -75,8 +96,12 @@ public class SoundService : IDisposable
 
         Application.Current.Dispatcher.Invoke(() =>
         {
-            _alarmPlayer?.Open(new Uri(path));
-            _alarmPlayer?.Play();
+            if (_alarmPlayer != null)
+            {
+                _alarmPlayer.Open(new Uri(path));
+                _alarmPlayer.Volume = _volume;
+                _alarmPlayer.Play();
+            }
         });
     }
 
@@ -89,8 +114,12 @@ public class SoundService : IDisposable
 
         Application.Current.Dispatcher.Invoke(() =>
         {
-            _uiPlayer?.Open(new Uri(path));
-            _uiPlayer?.Play();
+            if (_uiPlayer != null)
+            {
+                _uiPlayer.Open(new Uri(path));
+                _uiPlayer.Volume = _volume;
+                _uiPlayer.Play();
+            }
         });
     }
 
@@ -105,6 +134,7 @@ public class SoundService : IDisposable
         {
             var previewPlayer = new MediaPlayer();
             previewPlayer.Open(new Uri(path));
+            previewPlayer.Volume = _volume;
             previewPlayer.Play();
 
             await Task.Delay(durationMs);
@@ -116,6 +146,7 @@ public class SoundService : IDisposable
 
     public void Dispose()
     {
+        _isTicking = false;
         Application.Current.Dispatcher.Invoke(() =>
         {
             _tickingPlayer?.Close();
