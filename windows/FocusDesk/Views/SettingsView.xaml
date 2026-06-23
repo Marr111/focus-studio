@@ -15,6 +15,30 @@
                         Padding="20,10" FontSize="13"/>
             </Grid>
 
+            <!-- ══════════ SINCRONIZZAZIONE DRIVE ══════════ -->
+            <TextBlock Text="☁️ SINCRONIZZAZIONE GOOGLE DRIVE" FontSize="10" FontWeight="Bold"
+                       Foreground="{StaticResource AccentFocus}" Margin="0,0,0,10"/>
+            <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="Sincronizzazione Manuale" FontSize="14" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimary}"/>
+                    <TextBlock Text="Scarica e importa l'ultima versione del database da Google Drive." FontSize="12"
+                               Foreground="{StaticResource TextMuted}" Margin="0,4,0,12" TextWrapping="Wrap"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{Binding SyncStatus}" FontSize="12"
+                                   Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center"/>
+                        <Button Grid.Column="1" Style="{StaticResource BtnPrimary}"
+                                Content="🔄 Sincronizza Ora" Command="{Binding SyncDriveCommand}"
+                                IsEnabled="{Binding IsNotSyncing}"
+                                Padding="16,8" FontSize="12"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
             <!-- ══════════ TIMER ══════════ -->
             <TextBlock Text="⏱ TIMER" FontSize="10" FontWeight="Bold"
                        Foreground="{StaticResource AccentFocus}" Margin="0,0,0,10"/>

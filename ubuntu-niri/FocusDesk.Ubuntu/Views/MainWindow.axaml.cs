@@ -66,6 +66,19 @@ public partial class MainWindow : Window
                 SetActiveNav(NavTimer);
             });
         };
+
+        SettingsVm.RequestReloadAllData += () =>
+        {
+            Avalonia.Threading.Dispatcher.UIThread.Post(async () =>
+            {
+                await MainVm.LoadDataAsync();
+                await TasksVm.RefreshTasksAsync();
+                await StatsVm.Refresh();
+                await AgendaVm.LoadSessionsAsync();
+                await MainVm.AIPlannerVm.LoadExamsAsync();
+                await SettingsVm.LoadDbDataAsync();
+            });
+        };
     }
 
     // ─── Drag finestra ────────────────────────────────────────────────────────

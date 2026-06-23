@@ -39,8 +39,7 @@ public partial class AIPlannerViewModel : ObservableObject
         _aiService = new AIService();
         _ = LoadExamsAsync();
     }
-
-    private async Task LoadExamsAsync()
+    public async Task LoadExamsAsync()
     {
         try
         {

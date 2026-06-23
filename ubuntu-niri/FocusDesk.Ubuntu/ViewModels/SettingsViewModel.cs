@@ -29,6 +29,18 @@ public partial class SettingsViewModel : ObservableObject
     // ─── AI Services ──────────────────────────────────────────────────────────
     [ObservableProperty] private string _geminiApiKey = "";
 
+    // ─── Cloud Sync ───────────────────────────────────────────────────────────
+    public event Action? RequestReloadAllData;
+    [ObservableProperty] private bool _isSyncing;
+    [ObservableProperty] private string _syncStatus = "";
+
+    public bool IsNotSyncing => !IsSyncing;
+
+    partial void OnIsSyncingChanged(bool value)
+    {
+        OnPropertyChanged(nameof(IsNotSyncing));
+    }
+
     // ─── Suoni ────────────────────────────────────────────────────────────────
     [ObservableProperty] private bool _enableTickingSound;
     [ObservableProperty] private string _selectedTickingSound = "";
@@ -117,6 +129,26 @@ public partial class SettingsViewModel : ObservableObject
                 SelectedAlarmSound = AvailableAlarmSounds.First();
         }
         catch { }
+    }
+
+    [RelayCommand]
+    private async Task SyncDrive()
+    {
+        IsSyncing = true;
+        SyncStatus = "Sincronizzazione in corso...";
+        bool success = await FocusDesk.Ubuntu.Services.GoogleDriveSyncService.DownloadDbAsync();
+        if (success)
+        {
+            SyncStatus = "Sincronizzazione completata!";
+            RequestReloadAllData?.Invoke();
+        }
+        else
+        {
+            SyncStatus = "Errore di sincronizzazione!";
+        }
+        await Task.Delay(3000);
+        SyncStatus = "";
+        IsSyncing = false;
     }
 
     [RelayCommand]
@@ -251,7 +283,7 @@ public partial class SettingsViewModel : ObservableObject
             await db.SaveChangesAsync();
     }
 
-    private async Task LoadDbDataAsync()
+    public async Task LoadDbDataAsync()
     {
         await using var db = new AppDbContext();
 

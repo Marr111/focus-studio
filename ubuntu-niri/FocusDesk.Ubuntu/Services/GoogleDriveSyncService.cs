@@ -72,7 +72,7 @@ public static class GoogleDriveSyncService
         return tcs.Task;
     }
 
-    public static async Task DownloadDbAsync()
+    public static async Task<bool> DownloadDbAsync()
     {
         try
         {
@@ -82,9 +82,10 @@ public static class GoogleDriveSyncService
             string lsOutput = "";
             try {
                 lsOutput = await RunRcloneAsync($"ls {RemoteName}: --drive-root-folder-id {FolderId} --include \"focusdesk.db\"");
-            } catch {
+            } catch (Exception ex) {
+                Console.WriteLine($"Sync check error: {ex.Message}");
                 // If this fails (e.g. rclone not configured), we just abort gracefully
-                return;
+                return false;
             }
 
             if (string.IsNullOrWhiteSpace(lsOutput))
@@ -101,10 +102,12 @@ public static class GoogleDriveSyncService
                 string args = $"copy {RemoteName}: \"{DbDirectory}\" --drive-root-folder-id {FolderId} --include \"focusdesk.db\"";
                 await RunRcloneAsync(args);
             }
+            return true;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Sync download error: {ex.Message}");
+            return false;
         }
     }
 

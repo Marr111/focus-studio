@@ -60,6 +60,17 @@ public partial class MainWindow : Window
                 SetActiveNav(NavTimer);
             });
         };
+
+        SettingsVm.RequestReloadAllData += () =>
+        {
+            Application.Current.Dispatcher.Invoke(async () =>
+            {
+                await MainVm.LoadDataAsync();
+                await TasksVm.RefreshTasksAsync();
+                await StatsVm.Refresh();
+                await SettingsVm.LoadDbDataAsync();
+            });
+        };
     }
 
     // ─── Drag finestra ────────────────────────────────────────────────────────
