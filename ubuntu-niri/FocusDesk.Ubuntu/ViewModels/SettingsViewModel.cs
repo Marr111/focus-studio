@@ -43,6 +43,7 @@ public partial class SettingsViewModel : ObservableObject
     // ─── Focus Mode ───────────────────────────────────────────────────────────
     [ObservableProperty] private bool _enableDesktopIsolation;
     [ObservableProperty] private bool _enableWebsiteBlocking;
+    [ObservableProperty] private bool _enableFocusAssist;
 
     // ─── Whitelist app ────────────────────────────────────────────────────────
     public ObservableCollection<AppWhitelistEntry> WhitelistApps { get; } = new();
@@ -78,6 +79,7 @@ public partial class SettingsViewModel : ObservableObject
         MinimizeToTray = s.MinimizeToTray;
         EnableDesktopIsolation = s.EnableDesktopIsolation;
         EnableWebsiteBlocking = s.EnableWebsiteBlocking;
+        EnableFocusAssist = s.EnableFocusAssist;
         GeminiApiKey = s.GeminiApiKey;
 
         LoadAvailableSounds();
@@ -139,6 +141,7 @@ public partial class SettingsViewModel : ObservableObject
         s.MinimizeToTray = MinimizeToTray;
         s.EnableDesktopIsolation = EnableDesktopIsolation;
         s.EnableWebsiteBlocking = EnableWebsiteBlocking;
+        s.EnableFocusAssist = EnableFocusAssist;
         s.GeminiApiKey = GeminiApiKey;
 
         _mainVm.SaveSettings();
@@ -233,6 +236,7 @@ public partial class SettingsViewModel : ObservableObject
         var added = false;
         foreach (var domain in domains)
         {
+            if (BlockedSites.Any(s => s.Domain == domain)) continue;
             if (await db.BlockedSites.AnyAsync(s => s.Domain == domain)) continue;
             var site = new BlockedSite { Domain = domain, Category = category, IsEnabled = true };
             db.BlockedSites.Add(site);

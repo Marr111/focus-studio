@@ -212,7 +212,7 @@
                                     Command="{Binding ToggleFocusModeCommand}"
                                     Content="{Binding FocusModeButtonText}"
                                     BorderThickness="0" Padding="0,14"
-                                    Cursor="Hand" HorizontalAlignment="Stretch" CornerRadius="11">
+                                    Cursor="Hand" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" CornerRadius="11">
                             </Button>
                         </Border>
 

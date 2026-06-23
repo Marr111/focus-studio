@@ -51,6 +51,15 @@ public partial class MainWindow : Window
             if (e.PropertyName == nameof(MainVm.Progress) || e.PropertyName == nameof(MainVm.CurrentMode))
                 UpdateProgressRing(MainVm.Progress);
         };
+
+        MainVm.RequestShowTimerTab += (_, _) =>
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                ShowTab(TimerTab);
+                SetActiveNav(NavTimer);
+            });
+        };
     }
 
     // ─── Drag finestra ────────────────────────────────────────────────────────
@@ -88,6 +97,7 @@ public partial class MainWindow : Window
     {
         ShowTab(TimerTab);
         SetActiveNav(NavTimer);
+        _ = MainVm.LoadDataAsync();
     }
 
     private void NavTasks_Click(object sender, RoutedEventArgs e)

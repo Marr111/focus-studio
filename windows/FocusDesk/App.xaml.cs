@@ -19,22 +19,25 @@ public partial class App : Application
                 .AddDefaultMappers()
                 .AddDarkTheme());
 
-        System.Threading.Tasks.Task.Run(async () => await FocusDesk.Services.GoogleDriveSyncService.DownloadDbAsync()).Wait();
-
-        // Inizializza e migra il database
-        using var db = new AppDbContext();
-        db.Database.Migrate();
-
-        var currentExe = System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName;
-        if (!string.IsNullOrEmpty(currentExe) && !db.WhitelistEntries.Any(e => e.ExecutablePath == currentExe))
+        System.Threading.Tasks.Task.Run(async () =>
         {
-            db.WhitelistEntries.Add(new FocusDesk.Models.AppWhitelistEntry
+            await FocusDesk.Services.GoogleDriveSyncService.DownloadDbAsync();
+
+            // Inizializza e migra il database
+            using var db = new AppDbContext();
+            db.Database.Migrate();
+
+            var currentExe = System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName;
+            if (!string.IsNullOrEmpty(currentExe) && !db.WhitelistEntries.Any(entry => entry.ExecutablePath == currentExe))
             {
-                DisplayName = "FocusDesk",
-                ExecutablePath = currentExe,
-                SortOrder = 0
-            });
-            db.SaveChanges();
-        }
+                db.WhitelistEntries.Add(new FocusDesk.Models.AppWhitelistEntry
+                {
+                    DisplayName = "FocusDesk",
+                    ExecutablePath = currentExe,
+                    SortOrder = 0
+                });
+                db.SaveChanges();
+            }
+        });
     }
 }

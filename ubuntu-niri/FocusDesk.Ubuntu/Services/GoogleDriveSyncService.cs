@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace FocusDesk.Ubuntu.Services;
@@ -36,19 +37,32 @@ public static class GoogleDriveSyncService
                 EnableRaisingEvents = true
             };
 
+            process.Start();
+
+            var outputTask = process.StandardOutput.ReadToEndAsync();
+            var errorTask = process.StandardError.ReadToEndAsync();
+
             process.Exited += async (sender, args) =>
             {
-                string output = await process.StandardOutput.ReadToEndAsync();
-                string error = await process.StandardError.ReadToEndAsync();
-                
-                if (process.ExitCode == 0)
-                    tcs.SetResult(output);
-                else
-                    tcs.SetException(new Exception($"Rclone failed with exit code {process.ExitCode}: {error}"));
-                process.Dispose();
+                try
+                {
+                    string output = await outputTask;
+                    string error = await errorTask;
+                    
+                    if (process.ExitCode == 0)
+                        tcs.SetResult(output);
+                    else
+                        tcs.SetException(new Exception($"Rclone failed with exit code {process.ExitCode}: {error}"));
+                }
+                catch (Exception ex)
+                {
+                    tcs.TrySetException(ex);
+                }
+                finally
+                {
+                    process.Dispose();
+                }
             };
-
-            process.Start();
         }
         catch (Exception ex)
         {
@@ -92,6 +106,28 @@ public static class GoogleDriveSyncService
         {
             Console.WriteLine($"Sync download error: {ex.Message}");
         }
+    }
+
+    private static CancellationTokenSource? _debounceCts;
+
+    public static void DebounceUploadDbAsync(int delayMilliseconds = 2000)
+    {
+        _debounceCts?.Cancel();
+        _debounceCts = new CancellationTokenSource();
+        var token = _debounceCts.Token;
+
+        Task.Run(async () =>
+        {
+            try
+            {
+                await Task.Delay(delayMilliseconds, token);
+                await UploadDbAsync();
+            }
+            catch (TaskCanceledException)
+            {
+                // Debounced
+            }
+        });
     }
 
     public static async Task UploadDbAsync()

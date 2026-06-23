@@ -57,28 +57,28 @@ public class AppDbContext : DbContext
     public override int SaveChanges()
     {
         var result = base.SaveChanges();
-        _ = FocusDesk.Ubuntu.Services.GoogleDriveSyncService.UploadDbAsync();
+        FocusDesk.Ubuntu.Services.GoogleDriveSyncService.DebounceUploadDbAsync();
         return result;
     }
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {
         var result = base.SaveChanges(acceptAllChangesOnSuccess);
-        _ = FocusDesk.Ubuntu.Services.GoogleDriveSyncService.UploadDbAsync();
+        FocusDesk.Ubuntu.Services.GoogleDriveSyncService.DebounceUploadDbAsync();
         return result;
     }
 
     public override async System.Threading.Tasks.Task<int> SaveChangesAsync(System.Threading.CancellationToken cancellationToken = default)
     {
         var result = await base.SaveChangesAsync(cancellationToken);
-        _ = FocusDesk.Ubuntu.Services.GoogleDriveSyncService.UploadDbAsync();
+        FocusDesk.Ubuntu.Services.GoogleDriveSyncService.DebounceUploadDbAsync();
         return result;
     }
 
     public override async System.Threading.Tasks.Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, System.Threading.CancellationToken cancellationToken = default)
     {
         var result = await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
-        _ = FocusDesk.Ubuntu.Services.GoogleDriveSyncService.UploadDbAsync();
+        FocusDesk.Ubuntu.Services.GoogleDriveSyncService.DebounceUploadDbAsync();
         return result;
     }
 }

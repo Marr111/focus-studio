@@ -57,6 +57,15 @@ public partial class MainWindow : Window
             if (e.PropertyName == nameof(MainVm.Progress) || e.PropertyName == nameof(MainVm.CurrentMode))
                 UpdateProgressRing(MainVm.Progress);
         };
+
+        MainVm.RequestShowTimerTab += (_, _) =>
+        {
+            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+            {
+                ShowTab(TimerTab);
+                SetActiveNav(NavTimer);
+            });
+        };
     }
 
     // ─── Drag finestra ────────────────────────────────────────────────────────
@@ -94,6 +103,7 @@ public partial class MainWindow : Window
     {
         ShowTab(TimerTab);
         SetActiveNav(NavTimer);
+        _ = MainVm.LoadDataAsync();
     }
 
     private void NavTasks_Click(object sender, RoutedEventArgs e)

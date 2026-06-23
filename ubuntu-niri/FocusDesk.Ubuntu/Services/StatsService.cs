@@ -34,10 +34,12 @@ public class StatsService
     public async Task<int> GetTodaySessionsAsync()
     {
         await using var db = _dbFactory();
+        var today = DateTime.Today;
+        var tomorrow = today.AddDays(1);
         return await db.Sessions
             .Where(s => s.IsCompleted
                         && (s.Type == SessionType.Focus || s.Type == SessionType.FocusManuale)
-                        && s.StartTime.Date == DateTime.Today)
+                        && s.StartTime >= today && s.StartTime < tomorrow)
             .CountAsync();
     }
 
@@ -97,7 +99,7 @@ public class StatsService
             {
                 // Streak starts from yesterday if no sessions today
                 streak++;
-                expected = expected.AddDays(-2);
+                expected = date.AddDays(-1);
             }
             else break;
         }
@@ -199,10 +201,12 @@ public class StatsService
     public async Task<int> GetTodayMinutesAsync()
     {
         await using var db = _dbFactory();
+        var today = DateTime.Today;
+        var tomorrow = today.AddDays(1);
         return await db.Sessions
             .Where(s => s.IsCompleted
                         && (s.Type == SessionType.Focus || s.Type == SessionType.FocusManuale)
-                        && s.StartTime.Date == DateTime.Today)
+                        && s.StartTime >= today && s.StartTime < tomorrow)
             .SumAsync(s => s.DurationMinutes);
     }
 

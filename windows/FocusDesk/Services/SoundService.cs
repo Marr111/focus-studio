@@ -133,14 +133,19 @@ public class SoundService : IDisposable
         await Application.Current.Dispatcher.InvokeAsync(async () =>
         {
             var previewPlayer = new MediaPlayer();
-            previewPlayer.Open(new Uri(path));
-            previewPlayer.Volume = _volume;
-            previewPlayer.Play();
+            try
+            {
+                previewPlayer.Open(new Uri(path));
+                previewPlayer.Volume = _volume;
+                previewPlayer.Play();
 
-            await Task.Delay(durationMs);
-
-            previewPlayer.Stop();
-            previewPlayer.Close();
+                await Task.Delay(durationMs);
+            }
+            finally
+            {
+                previewPlayer.Stop();
+                previewPlayer.Close();
+            }
         });
     }
 

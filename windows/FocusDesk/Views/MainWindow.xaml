@@ -254,7 +254,7 @@
                                     Command="{Binding MainVm.ToggleFocusModeCommand}"
                                     Content="{Binding MainVm.FocusModeButtonText}"
                                     BorderThickness="0" Padding="0,14"
-                                    Cursor="Hand" HorizontalAlignment="Stretch">
+                                    Cursor="Hand" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
                                 <Button.Template>
                                     <ControlTemplate TargetType="Button">
                                         <Border x:Name="Bd" Background="{TemplateBinding Background}"

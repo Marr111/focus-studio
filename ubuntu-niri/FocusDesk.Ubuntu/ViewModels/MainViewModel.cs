@@ -15,6 +15,9 @@ namespace FocusDesk.ViewModels;
 
 public partial class MainViewModel : ObservableObject
 {
+    // ─── Eventi ────────────────────────────────────────────────────────────────
+    public event EventHandler? RequestShowTimerTab;
+
     // ─── Servizi ───────────────────────────────────────────────────────────────
     private readonly TimerService _timerService;
     private readonly StatsService _statsService;
@@ -80,7 +83,12 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void ToggleTimer()
     {
-        if (Settings.PlaySounds) SoundService.PlayUiSound(Settings, "button.wav");
+        ToggleTimerInternal(isUserAction: true);
+    }
+
+    private void ToggleTimerInternal(bool isUserAction)
+    {
+        if (isUserAction && Settings.PlaySounds) SoundService.PlayUiSound(Settings, "button.wav");
 
         if (IsRunning)
         {
@@ -98,7 +106,7 @@ public partial class MainViewModel : ObservableObject
             }
             else
             {
-                StartSession();
+                StartSession(isUserAction);
             }
             IsRunning = true;
             StartButtonText = "Pausa";
@@ -121,18 +129,23 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void SwitchMode(string modeStr)
     {
-        if (Settings.PlaySounds) SoundService.PlayUiSound(Settings, "button.wav");
+        SwitchModeInternal(modeStr, isUserAction: true);
+    }
+
+    private void SwitchModeInternal(string modeStr, bool isUserAction)
+    {
+        if (isUserAction && Settings.PlaySounds) SoundService.PlayUiSound(Settings, "button.wav");
         if (!Enum.TryParse<SessionType>(modeStr, out var mode)) return;
         _timerService.Stop();
         SoundService.StopTicking();
         _currentSession = null;
         IsRunning = false;
         StartButtonText = "Inizia";
+        Progress = 1.0;
         CurrentMode = mode;
         var duration = GetCurrentDuration();
         _timerService.SetDuration(duration);
         UpdateDisplay(duration);
-        Progress = 1.0;
     }
 
     // ─── Focus Mode ────────────────────────────────────────────────────────────
@@ -249,12 +262,12 @@ public partial class MainViewModel : ObservableObject
     }
 
     // ─── Helper privati ────────────────────────────────────────────────────────
-    private void StartSession()
+    private void StartSession(bool isUserAction)
     {
         var duration = GetCurrentDuration();
         _timerService.Start(duration);
 
-        if (Settings.PlaySounds)
+        if (isUserAction && Settings.PlaySounds)
         {
             SoundService.PlayUiSound(Settings, "button.wav");
         }
@@ -365,15 +378,15 @@ public partial class MainViewModel : ObservableObject
                 if (SessionsInCycle >= Settings.SessionsBeforeLongBreak)
                 {
                     SessionsInCycle = 0;
-                    SwitchMode(nameof(SessionType.PausaLunga));
+                    SwitchModeInternal(nameof(SessionType.PausaLunga), isUserAction: false);
                 }
                 else
                 {
-                    SwitchMode(nameof(SessionType.PausaBreve));
+                    SwitchModeInternal(nameof(SessionType.PausaBreve), isUserAction: false);
                 }
 
                 if (Settings.AutoStartBreaks)
-                    ToggleTimer();
+                    ToggleTimerInternal(isUserAction: false);
             }
             else
             {
@@ -384,10 +397,12 @@ public partial class MainViewModel : ObservableObject
                 if (Settings.ShowNotifications)
                     _notificationService.NotifyBreakComplete();
 
-                SwitchMode(nameof(SessionType.Focus));
+                RequestShowTimerTab?.Invoke(this, EventArgs.Empty);
+
+                SwitchModeInternal(nameof(SessionType.Focus), isUserAction: false);
 
                 if (Settings.AutoStartFocus)
-                    ToggleTimer();
+                    ToggleTimerInternal(isUserAction: false);
             }
         }
         catch (Exception ex)
@@ -413,7 +428,7 @@ public partial class MainViewModel : ObservableObject
         TimerDisplay = $"{(int)time.TotalMinutes:00}:{time.Seconds:00}";
     }
 
-    private async Task LoadDataAsync()
+    public async Task LoadDataAsync()
     {
         SessionsDoneToday = await _statsService.GetTodaySessionsAsync();
 

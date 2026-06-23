@@ -46,7 +46,7 @@ public partial class TasksViewModel : ObservableObject
         db.TaskItems.Add(task);
         await db.SaveChangesAsync();
 
-        Tasks.Insert(0, task);
+        Tasks.Add(task);
         NewTaskTitle = string.Empty;
         NewTaskEstimatedPomodoros = 1;
         ApplyFilter();

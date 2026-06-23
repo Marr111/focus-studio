@@ -47,7 +47,7 @@ public partial class TasksViewModel : ObservableObject, IDropTarget
         db.TaskItems.Add(task);
         await db.SaveChangesAsync();
 
-        Tasks.Insert(0, task);
+        Tasks.Add(task);
         NewTaskTitle = string.Empty;
         NewTaskEstimatedPomodoros = 1;
         ApplyFilter();
@@ -143,7 +143,7 @@ public partial class TasksViewModel : ObservableObject, IDropTarget
 
     public void DragOver(IDropInfo dropInfo)
     {
-        if (dropInfo.Data is TaskItem && dropInfo.TargetCollection == FilteredTasks)
+        if (dropInfo.Data is TaskItem)
         {
             dropInfo.DropTargetAdorner = DropTargetAdorners.Insert;
             dropInfo.Effects = DragDropEffects.Move;
@@ -152,28 +152,35 @@ public partial class TasksViewModel : ObservableObject, IDropTarget
 
     public async void Drop(IDropInfo dropInfo)
     {
-        var sourceItem = dropInfo.Data as TaskItem;
-        if (sourceItem == null || dropInfo.TargetCollection != FilteredTasks) return;
-
-        var sourceIndex = FilteredTasks.IndexOf(sourceItem);
-        var targetIndex = dropInfo.InsertIndex;
-
-        if (sourceIndex < 0 || targetIndex < 0) return;
-
-        if (sourceIndex < targetIndex)
-            targetIndex--;
-
-        if (sourceIndex == targetIndex) return;
-
-        FilteredTasks.Move(sourceIndex, targetIndex);
-
-        await using var db = new AppDbContext();
-        for (int i = 0; i < FilteredTasks.Count; i++)
+        try
         {
-            FilteredTasks[i].SortOrder = i;
-            db.TaskItems.Update(FilteredTasks[i]);
+            var sourceItem = dropInfo.Data as TaskItem;
+            if (sourceItem == null) return;
+
+            var sourceIndex = FilteredTasks.IndexOf(sourceItem);
+            var targetIndex = dropInfo.InsertIndex;
+
+            if (sourceIndex < 0 || targetIndex < 0) return;
+
+            if (sourceIndex < targetIndex)
+                targetIndex--;
+
+            if (sourceIndex == targetIndex) return;
+
+            FilteredTasks.Move(sourceIndex, targetIndex);
+
+            await using var db = new AppDbContext();
+            for (int i = 0; i < FilteredTasks.Count; i++)
+            {
+                FilteredTasks[i].SortOrder = i;
+                db.TaskItems.Update(FilteredTasks[i]);
+            }
+            await db.SaveChangesAsync();
+            _ = LoadTasksAsync();
         }
-        await db.SaveChangesAsync();
-        _ = LoadTasksAsync();
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error in Drop: {ex.Message}");
+        }
     }
 }
