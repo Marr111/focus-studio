@@ -5,7 +5,7 @@
         xmlns:views="using:FocusDesk.Views"
         xmlns:models="using:FocusDesk.Models"
         Title="FocusDesk" Width="500" Height="740"
-        MinWidth="440" MinHeight="600"
+        MinWidth="200" MinHeight="200"
         WindowStartupLocation="CenterScreen"
         Classes="FocusDeskWindow"
         Icon="avares://FocusDesk.Ubuntu/Resources/AppIcon.ico"
