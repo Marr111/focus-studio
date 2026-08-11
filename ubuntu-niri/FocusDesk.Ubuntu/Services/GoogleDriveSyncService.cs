@@ -81,7 +81,7 @@ public static class GoogleDriveSyncService
             // Check if drive is empty
             string lsOutput = "";
             try {
-                lsOutput = await RunRcloneAsync($"ls {RemoteName}: --drive-root-folder-id {FolderId} --include \"focusdesk.db\"");
+                lsOutput = await RunRcloneAsync($"ls {RemoteName}: --drive-root-folder-id {FolderId} --include \"focusdesk.db*\"");
             } catch (Exception ex) {
                 Console.WriteLine($"Sync check error: {ex.Message}");
                 // If this fails (e.g. rclone not configured), we just abort gracefully
@@ -99,7 +99,7 @@ public static class GoogleDriveSyncService
             else
             {
                 // Drive has data, download it (this overwrites local file with Drive's latest)
-                string args = $"copy {RemoteName}: \"{DbDirectory}\" --drive-root-folder-id {FolderId} --include \"focusdesk.db\"";
+                string args = $"copy {RemoteName}: \"{DbDirectory}\" --drive-root-folder-id {FolderId} --include \"focusdesk.db*\"";
                 await RunRcloneAsync(args);
             }
             return true;
@@ -139,8 +139,8 @@ public static class GoogleDriveSyncService
         {
             if (!File.Exists(DbPath)) return;
             
-            // Copy local file to drive
-            string args = $"copy \"{DbPath}\" {RemoteName}: --drive-root-folder-id {FolderId}";
+            // Copy local files to drive (including .db-wal and .db-shm)
+            string args = $"copy \"{DbDirectory}\" {RemoteName}: --drive-root-folder-id {FolderId} --include \"focusdesk.db*\"";
             await RunRcloneAsync(args);
         }
         catch (Exception ex)
