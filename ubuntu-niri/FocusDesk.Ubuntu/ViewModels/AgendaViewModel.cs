@@ -36,6 +36,7 @@ public partial class AgendaViewModel : ObservableObject
     [ObservableProperty] private TimeOfDay _newSessionTimeOfDay = TimeOfDay.Mattina;
 
     public ObservableCollection<StudySession> Sessions { get; } = new();
+    public ObservableCollection<CalendarDayItem> CalendarDays { get; } = new();
 
     public AgendaViewModel(MainViewModel mainVm, TasksViewModel tasksVm)
     {
@@ -51,8 +52,13 @@ public partial class AgendaViewModel : ObservableObject
 
     partial void OnViewModeChanged(AgendaViewMode value)
     {
+        OnPropertyChanged(nameof(IsDailyView));
+        OnPropertyChanged(nameof(IsCalendarView));
         UpdateDateDisplayAndLoadSessions();
     }
+
+    public bool IsDailyView => ViewMode == AgendaViewMode.Daily;
+    public bool IsCalendarView => ViewMode != AgendaViewMode.Daily;
 
     private void UpdateDateDisplayAndLoadSessions()
     {
@@ -102,6 +108,13 @@ public partial class AgendaViewModel : ObservableObject
     private void Today()
     {
         SelectedDate = DateTime.Today;
+    }
+
+    [RelayCommand]
+    private void SwitchToDay(DateTime date)
+    {
+        SelectedDate = date;
+        ViewMode = AgendaViewMode.Daily;
     }
 
     [RelayCommand]
@@ -230,9 +243,45 @@ public partial class AgendaViewModel : ObservableObject
         Dispatcher.UIThread.Post(() =>
         {
             Sessions.Clear();
-            foreach (var s in sessions)
+            CalendarDays.Clear();
+            
+            if (ViewMode == AgendaViewMode.Daily)
             {
-                Sessions.Add(s);
+                foreach (var s in sessions)
+                {
+                    Sessions.Add(s);
+                }
+            }
+            else
+            {
+                // Genera la griglia dei giorni
+                DateTime gridStart = startDate;
+                DateTime gridEnd = endDate;
+                
+                if (ViewMode == AgendaViewMode.Monthly)
+                {
+                    // Per il mese, vogliamo mostrare una griglia 6x7 (42 giorni)
+                    // Partiamo dal lunedì precedente all'inizio del mese
+                    int diff = (int)gridStart.DayOfWeek - (int)DayOfWeek.Monday;
+                    if (diff < 0) diff += 7; // se Domenica (0), diff = -1 -> 6
+                    
+                    gridStart = gridStart.AddDays(-diff);
+                    gridEnd = gridStart.AddDays(41); // 42 giorni totali
+                }
+                
+                for (var d = gridStart; d <= gridEnd; d = d.AddDays(1))
+                {
+                    bool isCurrentMonth = (ViewMode == AgendaViewMode.Weekly) || (d.Month == date.Month);
+                    var dayItem = new CalendarDayItem(d, isCurrentMonth);
+                    
+                    var daySessions = sessions.Where(s => s.Date.Date == d.Date);
+                    foreach (var s in daySessions)
+                    {
+                        dayItem.Sessions.Add(s);
+                    }
+                    
+                    CalendarDays.Add(dayItem);
+                }
             }
         });
     }

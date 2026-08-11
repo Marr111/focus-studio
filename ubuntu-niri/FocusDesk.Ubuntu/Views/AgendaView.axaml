@@ -95,8 +95,8 @@
             </Border>
         </Border>
 
-        <!-- Lista Sessioni -->
-        <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" Margin="24,0,24,24">
+        <!-- Vista Giornaliera: Lista Sessioni -->
+        <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" Margin="24,0,24,24" IsVisible="{Binding IsDailyView}">
             <StackPanel>
                 <!-- Placeholder se non ci sono sessioni -->
                 <TextBlock Text="Nessuna sessione programmata per questa data." 
@@ -157,5 +157,68 @@
                 </ItemsControl>
             </StackPanel>
         </ScrollViewer>
+
+        <!-- Vista Calendario (Settimanale/Mensile) -->
+        <Grid Grid.Row="3" Margin="24,0,24,24" IsVisible="{Binding IsCalendarView}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Intestazione giorni della settimana -->
+            <UniformGrid Grid.Row="0" Columns="7" Margin="0,0,0,8">
+                <TextBlock Text="LUN" FontSize="12" FontWeight="Bold" Foreground="{StaticResource TextMuted}" HorizontalAlignment="Center"/>
+                <TextBlock Text="MAR" FontSize="12" FontWeight="Bold" Foreground="{StaticResource TextMuted}" HorizontalAlignment="Center"/>
+                <TextBlock Text="MER" FontSize="12" FontWeight="Bold" Foreground="{StaticResource TextMuted}" HorizontalAlignment="Center"/>
+                <TextBlock Text="GIO" FontSize="12" FontWeight="Bold" Foreground="{StaticResource TextMuted}" HorizontalAlignment="Center"/>
+                <TextBlock Text="VEN" FontSize="12" FontWeight="Bold" Foreground="{StaticResource TextMuted}" HorizontalAlignment="Center"/>
+                <TextBlock Text="SAB" FontSize="12" FontWeight="Bold" Foreground="{StaticResource TextMuted}" HorizontalAlignment="Center"/>
+                <TextBlock Text="DOM" FontSize="12" FontWeight="Bold" Foreground="{StaticResource TextMuted}" HorizontalAlignment="Center"/>
+            </UniformGrid>
+
+            <!-- Griglia dei giorni -->
+            <ItemsControl Grid.Row="1" ItemsSource="{Binding CalendarDays}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Columns="7" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:CompileBindings="False">
+                        <Button Background="Transparent" BorderThickness="1" BorderBrush="{StaticResource BorderColor}" 
+                                CornerRadius="4" Margin="2" Padding="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                Command="{Binding $parent[UserControl].DataContext.SwitchToDayCommand}" CommandParameter="{Binding Date}">
+                            <Grid RowDefinitions="Auto,*">
+                                <!-- Numero giorno -->
+                                <Grid Grid.Row="0" HorizontalAlignment="Right" Width="24" Height="24">
+                                    <Border CornerRadius="12" Background="{StaticResource AccentColor}" IsVisible="{Binding IsToday}"/>
+                                    <TextBlock Text="{Binding Date.Day}" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock.Foreground>
+                                            <SolidColorBrush Color="White" />
+                                        </TextBlock.Foreground>
+                                    </TextBlock>
+                                </Grid>
+                                
+                                <!-- Indicatori Sessioni -->
+                                <ItemsControl Grid.Row="1" ItemsSource="{Binding Sessions}" Margin="0,4,0,0">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Spacing="2"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="{StaticResource AccentColor}" CornerRadius="2" Padding="4,2">
+                                                <TextBlock Text="{Binding Subject}" FontSize="9" Foreground="White" TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Grid>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
     </Grid>
 </UserControl>
