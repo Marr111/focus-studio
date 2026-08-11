@@ -8,9 +8,8 @@
     <Grid Margin="0">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- Header e Navigazione Data -->
@@ -44,7 +43,7 @@
         </Border>
 
         <!-- Aggiungi nuova sessione -->
-        <Border Grid.Row="1" Margin="24,0,24,16">
+        <Border Grid.Row="2" Margin="24,16,24,24">
             <Border Classes="Card" Padding="16">
                 <StackPanel Spacing="12">
                     <TextBlock Text="Nuova Sessione di Studio" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}"/>
@@ -96,7 +95,7 @@
         </Border>
 
         <!-- Vista Giornaliera: Lista Sessioni -->
-        <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" Margin="24,0,24,24" IsVisible="{Binding IsDailyView}">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="24,0,24,16" IsVisible="{Binding IsDailyView}">
             <StackPanel>
                 <!-- Placeholder se non ci sono sessioni -->
                 <TextBlock Text="Nessuna sessione programmata per questa data." 
@@ -159,7 +158,7 @@
         </ScrollViewer>
 
         <!-- Vista Calendario (Settimanale/Mensile) -->
-        <Grid Grid.Row="3" Margin="24,0,24,24" IsVisible="{Binding IsCalendarView}">
+        <Grid Grid.Row="1" Margin="24,0,24,16" IsVisible="{Binding IsCalendarView}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
