@@ -82,6 +82,22 @@
                                 <Button Classes="BtnGhost" Content="Carica File..." Click="UploadFiles_Click"/>
                             </StackPanel>
                         </Grid>
+
+                        <!-- Lista dei materiali caricati -->
+                        <ItemsControl ItemsSource="{Binding UploadedMaterials}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:CompileBindings="False">
+                                    <Border BorderBrush="{StaticResource BorderColor}" BorderThickness="1" CornerRadius="6" Padding="8,4" Margin="0,4,0,0" Background="{StaticResource BgSecondary}">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <TextBlock Grid.Column="0" Text="{Binding Name}" FontSize="12" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,8,0"/>
+                                            <!-- Delete Button for material -->
+                                            <Button Grid.Column="1" Classes="BtnIcon" Content="🗑" VerticalAlignment="Center"
+                                                    Command="{Binding $parent[UserControl].DataContext.RemoveUploadedMaterialCommand}" CommandParameter="{Binding}"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                         
                         <TextBlock Text="Note aggiuntive per l'IA:" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}" Margin="0,8,0,0"/>
                         <TextBox Classes="InputField" Height="80" AcceptsReturn="True" TextWrapping="Wrap" Text="{Binding AdditionalNotes}" Watermark="Es. 'Non posso studiare il sabato e la domenica' oppure 'Voglio preparare lo scritto di Analisi prima di tutto'"/>

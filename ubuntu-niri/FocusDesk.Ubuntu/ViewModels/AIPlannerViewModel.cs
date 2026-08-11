@@ -13,6 +13,13 @@ using System.Collections.Generic;
 
 namespace FocusDesk.ViewModels;
 
+public class UploadedMaterialItem
+{
+    public string Name { get; set; } = string.Empty;
+    public string Path { get; set; } = string.Empty;
+    public List<string> Contents { get; set; } = new();
+}
+
 public partial class AIPlannerViewModel : ObservableObject
 {
     private readonly MainViewModel? _mainVm;
@@ -20,9 +27,9 @@ public partial class AIPlannerViewModel : ObservableObject
 
     public ObservableCollection<Exam> Exams { get; } = new();
     
-    // Lista dei testi estratti dai file (gestiti dalla View)
-    public List<string> UploadedFilesContent { get; } = new();
-    [ObservableProperty] private string _uploadedFilesSummary = "Nessun file selezionato";
+    // Materiali caricati
+    public ObservableCollection<UploadedMaterialItem> UploadedMaterials { get; } = new();
+    [ObservableProperty] private string _uploadedFilesSummary = "Nessun materiale selezionato";
 
     [ObservableProperty] private string _additionalNotes = string.Empty;
     [ObservableProperty] private bool _isGenerating = false;
@@ -110,7 +117,8 @@ public partial class AIPlannerViewModel : ObservableObject
                 await db.SaveChangesAsync();
             }
 
-            var sessions = await _aiService.GenerateStudyPlanAsync(apiKey, Exams.ToList(), UploadedFilesContent, AdditionalNotes);
+            var allTexts = UploadedMaterials.SelectMany(m => m.Contents).ToList();
+            var sessions = await _aiService.GenerateStudyPlanAsync(apiKey, Exams.ToList(), allTexts, AdditionalNotes);
             
             // Ordina per data
             foreach(var s in sessions.OrderBy(x => x.Date).ThenBy(x => x.TimeOfDay))
@@ -132,6 +140,21 @@ public partial class AIPlannerViewModel : ObservableObject
     private void RemoveGeneratedSession(StudySession session)
     {
         GeneratedSessions.Remove(session);
+    }
+
+    [RelayCommand]
+    private void RemoveUploadedMaterial(UploadedMaterialItem item)
+    {
+        if (item != null)
+        {
+            UploadedMaterials.Remove(item);
+            UpdateSummary();
+        }
+    }
+
+    public void UpdateSummary()
+    {
+        UploadedFilesSummary = $"Caricati {UploadedMaterials.Count} elementi totali.";
     }
 
     [RelayCommand]

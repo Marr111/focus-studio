@@ -34,46 +34,20 @@ public partial class AIPlannerView : UserControl
 
         if (files.Count > 0)
         {
-            var names = new System.Collections.Generic.List<string>();
-
             foreach (var file in files)
             {
-                names.Add(file.Name);
-                
-                try
+                var fileItem = new UploadedMaterialItem { Name = file.Name, Path = file.Path?.ToString() ?? file.Name };
+                await ProcessSingleFileAsync(file, fileItem);
+                if (fileItem.Contents.Count > 0)
                 {
-                    await using var stream = await file.OpenReadAsync();
-                    
-                    if (file.Name.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
-                    {
-                        using var ms = new MemoryStream();
-                        await stream.CopyToAsync(ms);
-                        ms.Position = 0;
-                        
-                        using var pdfDocument = UglyToad.PdfPig.PdfDocument.Open(ms);
-                        var textBuilder = new System.Text.StringBuilder();
-                        foreach (var page in pdfDocument.GetPages())
-                        {
-                            textBuilder.AppendLine(page.Text);
-                        }
-                        vm.UploadedFilesContent.Add($"[File PDF: {file.Name}]\n{textBuilder.ToString()}");
-                    }
-                    else
-                    {
-                        using var reader = new StreamReader(stream);
-                        var text = await reader.ReadToEndAsync();
-                        vm.UploadedFilesContent.Add($"[File: {file.Name}]\n{text}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    vm.UploadedFilesContent.Add($"[File: {file.Name}]\nErrore lettura: {ex.Message}");
+                    vm.UploadedMaterials.Add(fileItem);
                 }
             }
 
-            vm.UploadedFilesSummary = $"Caricati {vm.UploadedFilesContent.Count} file totali.";
+            vm.UpdateSummary();
         }
     }
+    
     private async void UploadFolder_Click(object? sender, RoutedEventArgs e)
     {
         if (DataContext is not AIPlannerViewModel vm) return;
@@ -91,39 +65,44 @@ public partial class AIPlannerView : UserControl
         {
             foreach (var folder in folders)
             {
-                await ProcessFolderAsync(folder, vm);
+                var folderItem = new UploadedMaterialItem { Name = "Cartella: " + folder.Name, Path = folder.Path?.ToString() ?? folder.Name };
+                await ProcessFolderAsync(folder, folderItem);
+                if (folderItem.Contents.Count > 0)
+                {
+                    vm.UploadedMaterials.Add(folderItem);
+                }
             }
-            vm.UploadedFilesSummary = $"Caricati {vm.UploadedFilesContent.Count} file totali.";
+            vm.UpdateSummary();
         }
     }
 
-    private async System.Threading.Tasks.Task ProcessFolderAsync(Avalonia.Platform.Storage.IStorageFolder folder, AIPlannerViewModel vm)
+    private async System.Threading.Tasks.Task ProcessFolderAsync(Avalonia.Platform.Storage.IStorageFolder folder, UploadedMaterialItem item)
     {
         try
         {
-            await foreach (var item in folder.GetItemsAsync())
+            await foreach (var child in folder.GetItemsAsync())
             {
-                if (item is Avalonia.Platform.Storage.IStorageFile file)
+                if (child is Avalonia.Platform.Storage.IStorageFile file)
                 {
                     string ext = Path.GetExtension(file.Name).ToLowerInvariant();
                     if (ext == ".txt" || ext == ".md" || ext == ".csv" || ext == ".json" || ext == ".pdf")
                     {
-                        await ProcessSingleFileAsync(file, vm);
+                        await ProcessSingleFileAsync(file, item);
                     }
                 }
-                else if (item is Avalonia.Platform.Storage.IStorageFolder subfolder)
+                else if (child is Avalonia.Platform.Storage.IStorageFolder subfolder)
                 {
-                    await ProcessFolderAsync(subfolder, vm);
+                    await ProcessFolderAsync(subfolder, item);
                 }
             }
         }
         catch (Exception ex)
         {
-            vm.UploadedFilesContent.Add($"[Cartella: {folder.Name}]\nErrore lettura: {ex.Message}");
+            item.Contents.Add($"[Cartella: {folder.Name}]\nErrore lettura: {ex.Message}");
         }
     }
 
-    private async System.Threading.Tasks.Task ProcessSingleFileAsync(Avalonia.Platform.Storage.IStorageFile file, AIPlannerViewModel vm)
+    private async System.Threading.Tasks.Task ProcessSingleFileAsync(Avalonia.Platform.Storage.IStorageFile file, UploadedMaterialItem item)
     {
         try
         {
@@ -141,18 +120,18 @@ public partial class AIPlannerView : UserControl
                 {
                     textBuilder.AppendLine(page.Text);
                 }
-                vm.UploadedFilesContent.Add($"[File PDF: {file.Name}]\n{textBuilder.ToString()}");
+                item.Contents.Add($"[File PDF: {file.Name}]\n{textBuilder.ToString()}");
             }
             else
             {
                 using var reader = new StreamReader(stream);
                 var text = await reader.ReadToEndAsync();
-                vm.UploadedFilesContent.Add($"[File: {file.Name}]\n{text}");
+                item.Contents.Add($"[File: {file.Name}]\n{text}");
             }
         }
         catch (Exception ex)
         {
-            vm.UploadedFilesContent.Add($"[File: {file.Name}]\nErrore lettura: {ex.Message}");
+            item.Contents.Add($"[File: {file.Name}]\nErrore lettura: {ex.Message}");
         }
     }
 }
