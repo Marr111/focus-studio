@@ -39,10 +39,22 @@ public class AIService
         if (materialsContent != null && materialsContent.Count > 0)
         {
             promptBuilder.AppendLine("\n**Materiali forniti:**");
+            int currentLength = 0;
+            const int MAX_MATERIAL_LENGTH = 100000; // Limite di ~25k token per evitare errori di Quota (429)
+
             foreach (var mat in materialsContent)
             {
-                promptBuilder.AppendLine(mat);
+                if (currentLength >= MAX_MATERIAL_LENGTH) break;
+
+                string contentToAdd = mat;
+                if (currentLength + contentToAdd.Length > MAX_MATERIAL_LENGTH)
+                {
+                    contentToAdd = contentToAdd.Substring(0, MAX_MATERIAL_LENGTH - currentLength) + "\n...[TESTO TRONCATO PER LIMITI DI DIMENSIONE DELL'IA]...";
+                }
+
+                promptBuilder.AppendLine(contentToAdd);
                 promptBuilder.AppendLine("---");
+                currentLength += contentToAdd.Length;
             }
         }
 
@@ -85,6 +97,10 @@ public class AIService
         if (!response.IsSuccessStatusCode)
         {
             string error = await response.Content.ReadAsStringAsync();
+            if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests || error.Contains("Quota exceeded") || error.Contains("quota"))
+            {
+                throw new Exception($"Limite di richieste o token superato (Errore 429). Hai caricato troppi materiali o effettuato troppe richieste ravvicinate. Riprova tra un minuto.\n\nDettagli: {error}");
+            }
             throw new Exception($"Errore API Gemini: {response.StatusCode} - {error}");
         }
 
