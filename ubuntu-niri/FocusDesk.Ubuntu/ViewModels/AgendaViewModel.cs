@@ -11,12 +11,23 @@ using Avalonia.Threading;
 
 namespace FocusDesk.ViewModels;
 
+public enum AgendaViewMode
+{
+    Daily,
+    Weekly,
+    Monthly
+}
+
 public partial class AgendaViewModel : ObservableObject
 {
     private readonly MainViewModel _mainVm;
     private readonly TasksViewModel _tasksVm;
 
     [ObservableProperty] private DateTime _selectedDate = DateTime.Today;
+    
+    [ObservableProperty] private AgendaViewMode _viewMode = AgendaViewMode.Daily;
+    
+    [ObservableProperty] private string _dateDisplayText = string.Empty;
     
     [ObservableProperty] private string _newSessionSubject = string.Empty;
     [ObservableProperty] private string _newSessionTitle = string.Empty;
@@ -35,19 +46,56 @@ public partial class AgendaViewModel : ObservableObject
 
     partial void OnSelectedDateChanged(DateTime value)
     {
+        UpdateDateDisplayAndLoadSessions();
+    }
+
+    partial void OnViewModeChanged(AgendaViewMode value)
+    {
+        UpdateDateDisplayAndLoadSessions();
+    }
+
+    private void UpdateDateDisplayAndLoadSessions()
+    {
+        switch (ViewMode)
+        {
+            case AgendaViewMode.Daily:
+                DateDisplayText = SelectedDate.ToString("dd MMMM yyyy");
+                break;
+            case AgendaViewMode.Weekly:
+                var startOfWeek = SelectedDate.AddDays(-(int)SelectedDate.DayOfWeek + (int)DayOfWeek.Monday);
+                if (SelectedDate.DayOfWeek == DayOfWeek.Sunday) startOfWeek = SelectedDate.AddDays(-6);
+                var endOfWeek = startOfWeek.AddDays(6);
+                DateDisplayText = $"{startOfWeek:dd} - {endOfWeek:dd MMMM yyyy}";
+                break;
+            case AgendaViewMode.Monthly:
+                DateDisplayText = SelectedDate.ToString("MMMM yyyy");
+                break;
+        }
         _ = LoadSessionsAsync();
     }
 
     [RelayCommand]
-    private void PreviousDay()
+    private void PreviousPeriod()
     {
-        SelectedDate = SelectedDate.AddDays(-1);
+        SelectedDate = ViewMode switch
+        {
+            AgendaViewMode.Daily => SelectedDate.AddDays(-1),
+            AgendaViewMode.Weekly => SelectedDate.AddDays(-7),
+            AgendaViewMode.Monthly => SelectedDate.AddMonths(-1),
+            _ => SelectedDate
+        };
     }
 
     [RelayCommand]
-    private void NextDay()
+    private void NextPeriod()
     {
-        SelectedDate = SelectedDate.AddDays(1);
+        SelectedDate = ViewMode switch
+        {
+            AgendaViewMode.Daily => SelectedDate.AddDays(1),
+            AgendaViewMode.Weekly => SelectedDate.AddDays(7),
+            AgendaViewMode.Monthly => SelectedDate.AddMonths(1),
+            _ => SelectedDate
+        };
     }
 
     [RelayCommand]
@@ -156,9 +204,26 @@ public partial class AgendaViewModel : ObservableObject
     {
         await using var db = new AppDbContext();
         var date = SelectedDate.Date;
+        
+        DateTime startDate = date;
+        DateTime endDate = date;
+
+        if (ViewMode == AgendaViewMode.Weekly)
+        {
+            startDate = date.AddDays(-(int)date.DayOfWeek + (int)DayOfWeek.Monday);
+            if (date.DayOfWeek == DayOfWeek.Sunday) startDate = date.AddDays(-6);
+            endDate = startDate.AddDays(6);
+        }
+        else if (ViewMode == AgendaViewMode.Monthly)
+        {
+            startDate = new DateTime(date.Year, date.Month, 1);
+            endDate = startDate.AddMonths(1).AddDays(-1);
+        }
+
         var sessions = await db.StudySessions
-            .Where(s => s.Date.Date == date)
-            .OrderBy(s => s.TimeOfDay)
+            .Where(s => s.Date.Date >= startDate && s.Date.Date <= endDate)
+            .OrderBy(s => s.Date)
+            .ThenBy(s => s.TimeOfDay)
             .ThenBy(s => s.Id)
             .ToListAsync();
 

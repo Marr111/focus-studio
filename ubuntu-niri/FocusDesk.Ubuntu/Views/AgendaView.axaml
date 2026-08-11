@@ -25,14 +25,20 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     
-                    <Button Grid.Column="0" Classes="BtnIcon" Content="◀" Command="{Binding PreviousDayCommand}"/>
-                    <TextBlock Grid.Column="1" Text="{Binding SelectedDate, StringFormat='{}{0:dd MMMM yyyy}'}" 
+                    <Button Grid.Column="0" Classes="BtnIcon" Content="◀" Command="{Binding PreviousPeriodCommand}"/>
+                    <TextBlock Grid.Column="1" Text="{Binding DateDisplayText}" 
                                HorizontalAlignment="Center" VerticalAlignment="Center"
                                FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}"/>
-                    <Button Grid.Column="2" Classes="BtnIcon" Content="▶" Command="{Binding NextDayCommand}" Margin="0,0,8,0"/>
-                    <Button Grid.Column="3" Classes="BtnGhost" Content="Oggi" Command="{Binding TodayCommand}" Padding="12,6"/>
+                    <Button Grid.Column="2" Classes="BtnIcon" Content="▶" Command="{Binding NextPeriodCommand}" Margin="0,0,8,0"/>
+                    <Button Grid.Column="3" Classes="BtnGhost" Content="Oggi" Command="{Binding TodayCommand}" Padding="12,6" Margin="0,0,8,0"/>
+                    <ComboBox Grid.Column="4" SelectedIndex="{Binding ViewMode, Mode=TwoWay}" VerticalAlignment="Center" Width="130">
+                        <ComboBoxItem>Giornaliera</ComboBoxItem>
+                        <ComboBoxItem>Settimanale</ComboBoxItem>
+                        <ComboBoxItem>Mensile</ComboBoxItem>
+                    </ComboBox>
                 </Grid>
             </StackPanel>
         </Border>
@@ -109,12 +115,14 @@
                                     </Grid.ColumnDefinitions>
 
                                     <!-- Time Indicator -->
-                                    <Border Grid.Column="0" Width="40" Height="40" CornerRadius="20" 
-                                            Background="{StaticResource BgElevated}" Margin="0,0,12,0">
-                                        <TextBlock Text="{Binding TimeOfDay}" FontSize="10" 
-                                                   HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                   Foreground="{StaticResource TextSecondary}"/>
-                                    </Border>
+                                    <StackPanel Grid.Column="0" Margin="0,0,12,0" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Date, StringFormat='{}{0:ddd dd}'}" FontSize="12" Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Center" FontWeight="Bold" Margin="0,0,0,4"/>
+                                        <Border Width="40" Height="40" CornerRadius="20" Background="{StaticResource BgElevated}">
+                                            <TextBlock Text="{Binding TimeOfDay}" FontSize="10" 
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                       Foreground="{StaticResource TextSecondary}"/>
+                                        </Border>
+                                    </StackPanel>
 
                                     <!-- Content -->
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
