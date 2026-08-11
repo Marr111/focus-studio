@@ -35,7 +35,12 @@
                                     <Border BorderBrush="{StaticResource BorderColor}" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,8" Background="{StaticResource BgSecondary}">
                                         <Grid ColumnDefinitions="*,Auto">
                                             <StackPanel Grid.Column="0" Spacing="8">
-                                                <TextBox Text="{Binding Name}" Classes="InputField" Watermark="Nome materia..."/>
+                                                <Grid ColumnDefinitions="*,Auto">
+                                                    <TextBox Grid.Column="0" Text="{Binding Name}" Classes="InputField" Watermark="Nome materia..."/>
+                                                    <Border Grid.Column="1" Background="{StaticResource AccentHover}" CornerRadius="6" Padding="8,4" Margin="12,0,0,0" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding CountdownText}" FontSize="12" FontWeight="Bold" Foreground="{StaticResource AccentFocus}"/>
+                                                    </Border>
+                                                </Grid>
                                                 
                                                 <!-- Date Grid -->
                                                 <Grid ColumnDefinitions="*,*,*,*">
