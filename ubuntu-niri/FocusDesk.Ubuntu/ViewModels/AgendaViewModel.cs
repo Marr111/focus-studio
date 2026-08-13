@@ -169,6 +169,7 @@ public partial class AgendaViewModel : ObservableObject
             if (existingTask != null)
             {
                 _mainVm.SelectTaskCommand.Execute(existingTask);
+                _mainVm.NavigateToTimerTab();
                 return;
             }
         }
@@ -210,6 +211,7 @@ public partial class AgendaViewModel : ObservableObject
         if (loadedTask != null)
         {
             _mainVm.SelectTaskCommand.Execute(loadedTask);
+            _mainVm.NavigateToTimerTab();
         }
     }
 

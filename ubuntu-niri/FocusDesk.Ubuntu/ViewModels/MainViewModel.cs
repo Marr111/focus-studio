@@ -18,6 +18,11 @@ public partial class MainViewModel : ObservableObject
     // ─── Eventi ────────────────────────────────────────────────────────────────
     public event EventHandler? RequestShowTimerTab;
 
+    public void NavigateToTimerTab()
+    {
+        RequestShowTimerTab?.Invoke(this, EventArgs.Empty);
+    }
+
     // ─── Servizi ───────────────────────────────────────────────────────────────
     private readonly TimerService _timerService;
     private readonly StatsService _statsService;
