@@ -234,7 +234,7 @@ public partial class AgendaViewModel : ObservableObject
         }
 
         var sessions = await db.StudySessions
-            .Where(s => s.Date.Date >= startDate && s.Date.Date <= endDate)
+            .Where(s => s.Date >= startDate && s.Date <= endDate)
             .OrderBy(s => s.Date)
             .ThenBy(s => s.TimeOfDay)
             .ThenBy(s => s.Id)
@@ -274,7 +274,7 @@ public partial class AgendaViewModel : ObservableObject
                     bool isCurrentMonth = (ViewMode == AgendaViewMode.Weekly) || (d.Month == date.Month);
                     var dayItem = new CalendarDayItem(d, isCurrentMonth);
                     
-                    var daySessions = sessions.Where(s => s.Date.Date == d.Date);
+                    var daySessions = sessions.Where(s => s.Date == d.Date);
                     foreach (var s in daySessions)
                     {
                         dayItem.Sessions.Add(s);
