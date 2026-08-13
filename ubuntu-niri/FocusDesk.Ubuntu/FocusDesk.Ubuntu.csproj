@@ -32,7 +32,5 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.2" />
     <PackageReference Include="NetCoreAudio" Version="2.0.1" />
     <PackageReference Include="UglyToad.PdfPig" Version="1.7.0-custom-5" />
-    <PackageReference Include="LLamaSharp" Version="0.12.0" />
-    <PackageReference Include="LLamaSharp.Backend.Cpu" Version="0.12.0" />
   </ItemGroup>
 </Project>

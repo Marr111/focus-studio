@@ -2,94 +2,126 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using LLama;
-using LLama.Common;
 
 namespace FocusDesk.Ubuntu.Services;
 
+public class OllamaModelInfo
+{
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+}
+
+public class OllamaTagsResponse
+{
+    [JsonPropertyName("models")]
+    public List<OllamaModelInfo> Models { get; set; } = new();
+}
+
+public class OllamaGenerateRequest
+{
+    [JsonPropertyName("model")]
+    public string Model { get; set; } = string.Empty;
+    
+    [JsonPropertyName("prompt")]
+    public string Prompt { get; set; } = string.Empty;
+
+    [JsonPropertyName("stream")]
+    public bool Stream { get; set; } = false;
+}
+
+public class OllamaGenerateResponse
+{
+    [JsonPropertyName("response")]
+    public string Response { get; set; } = string.Empty;
+}
+
 public class LocalLlmSummarizer : IDisposable
 {
-    private static readonly string ModelsFolder = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-        "FocusDesk",
-        "Models");
+    private readonly HttpClient _httpClient;
+    private const string OllamaUrl = "http://localhost:11434";
 
-    private LLamaWeights? _weights;
-    private LLamaContext? _context;
-    private InteractiveExecutor? _executor;
-    
-    private const int MaxContextTokens = 2048; // Bilanciamo prestazioni e contesto
-    
-    public bool IsModelAvailable()
+    public LocalLlmSummarizer()
     {
-        if (!Directory.Exists(ModelsFolder))
-            return false;
-            
-        return Directory.GetFiles(ModelsFolder, "*.gguf").Length > 0;
+        _httpClient = new HttpClient();
+        _httpClient.BaseAddress = new Uri(OllamaUrl);
+        _httpClient.Timeout = TimeSpan.FromMinutes(15); // Inference can take some time
     }
 
-    public string GetModelPath()
+    public bool IsModelAvailable()
     {
-        if (!Directory.Exists(ModelsFolder))
-            Directory.CreateDirectory(ModelsFolder);
+        try
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, "/api/tags");
+            var response = _httpClient.Send(request);
+            if (response.IsSuccessStatusCode)
+            {
+                using var stream = response.Content.ReadAsStream();
+                var tags = JsonSerializer.Deserialize<OllamaTagsResponse>(stream);
+                return tags != null && tags.Models.Count > 0;
+            }
+        }
+        catch
+        {
+            // Ollama not running or no models
+        }
+        return false;
+    }
 
-        var models = Directory.GetFiles(ModelsFolder, "*.gguf");
-        return models.Length > 0 ? models[0] : string.Empty;
+    private async Task<string> GetFirstModelNameAsync()
+    {
+        var response = await _httpClient.GetAsync("/api/tags");
+        response.EnsureSuccessStatusCode();
+        var tags = await response.Content.ReadFromJsonAsync<OllamaTagsResponse>();
+        
+        // Prioritizza il modello suggerito "Phi-3", se no prendi il primo
+        var phiModel = tags?.Models.FirstOrDefault(m => m.Name.Contains("Phi-3", StringComparison.OrdinalIgnoreCase));
+        var first = phiModel ?? tags?.Models.FirstOrDefault();
+        
+        if (first == null) throw new Exception("Nessun modello trovato in Ollama");
+        return first.Name;
     }
 
     public void Initialize()
     {
-        if (_weights != null) return; // Già inizializzato
-        
-        string modelPath = GetModelPath();
-        if (string.IsNullOrEmpty(modelPath))
-            throw new FileNotFoundException("Nessun modello .gguf trovato in " + ModelsFolder);
-
-        var parameters = new ModelParams(modelPath)
-        {
-            ContextSize = MaxContextTokens,
-            GpuLayerCount = 0 // Usiamo CPU fallback
-        };
-
-        _weights = LLamaWeights.LoadFromFile(parameters);
-        _context = _weights.CreateContext(parameters);
-        _executor = new InteractiveExecutor(_context);
+        // Nessuna inizializzazione pesante in memoria necessaria per Ollama
     }
 
     public async Task<string> SummarizeTextAsync(string text)
     {
-        if (_executor == null)
-            Initialize();
+        string modelName = await GetFirstModelNameAsync();
 
-        // Semplice suddivisione in chunk se il testo è troppo lungo.
-        // Approssimiamo 1 token = 4 caratteri
-        int maxCharsPerChunk = (MaxContextTokens - 500) * 4; 
+        // Approx 1500 tokens (around 6000 chars)
+        int maxCharsPerChunk = 6000; 
         var chunks = ChunkText(text, maxCharsPerChunk);
         
         StringBuilder fullSummary = new StringBuilder();
 
         foreach (var chunk in chunks)
         {
-            var prompt = $"<|system|>\nSei un assistente allo studio. Riassumi i seguenti appunti estraendo in modo chiaro e discorsivo i concetti chiave. Cerca di essere conciso ma non perdere informazioni vitali.<|end|>\n<|user|>\nRiassumi questo testo:\n\n{chunk}<|end|>\n<|assistant|>\n";
+            var prompt = $"Sei un assistente allo studio. Riassumi i seguenti appunti estraendo in modo chiaro e discorsivo i concetti chiave. Cerca di essere conciso ma non perdere informazioni vitali.\n\nTesto da riassumere:\n{chunk}";
             
-            var inferenceParams = new InferenceParams()
+            var request = new OllamaGenerateRequest
             {
-                MaxTokens = 500,
-                Temperature = 0.3f,
-                AntiPrompts = new List<string> { "<|end|>", "<|user|>" }
+                Model = modelName,
+                Prompt = prompt,
+                Stream = false
             };
 
-            StringBuilder chunkSummary = new StringBuilder();
-            
-            await foreach (var token in _executor!.InferAsync(prompt, inferenceParams))
+            var response = await _httpClient.PostAsJsonAsync("/api/generate", request);
+            response.EnsureSuccessStatusCode();
+
+            var generateResponse = await response.Content.ReadFromJsonAsync<OllamaGenerateResponse>();
+            if (generateResponse != null && !string.IsNullOrWhiteSpace(generateResponse.Response))
             {
-                chunkSummary.Append(token);
+                fullSummary.AppendLine(generateResponse.Response.Trim());
+                fullSummary.AppendLine();
             }
-            
-            fullSummary.AppendLine(chunkSummary.ToString().Trim());
-            fullSummary.AppendLine();
         }
 
         return fullSummary.ToString().Trim();
@@ -110,7 +142,6 @@ public class LocalLlmSummarizer : IDisposable
 
     public void Dispose()
     {
-        _context?.Dispose();
-        _weights?.Dispose();
+        _httpClient?.Dispose();
     }
 }
