@@ -5,6 +5,12 @@
              x:DataType="vm:AgendaViewModel"
              Background="Transparent">
 
+    <UserControl.Styles>
+        <Style Selector="Border.Exhausted">
+            <Setter Property="Opacity" Value="0.5"/>
+        </Style>
+    </UserControl.Styles>
+
     <Grid Margin="0">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -105,7 +111,7 @@
                 <ItemsControl ItemsSource="{Binding Sessions}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:CompileBindings="False">
-                            <Border Classes="Card" Margin="0,0,0,8" Padding="14">
+                            <Border Classes="Card" Classes.Exhausted="{Binding IsExhausted}" Margin="0,0,0,8" Padding="14">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
@@ -142,6 +148,7 @@
                                                 Command="{Binding $parent[UserControl].DataContext.StartAsTaskCommand}"
                                                 CommandParameter="{Binding}"
                                                 Classes.Completed="{Binding IsMappedToTask}"
+                                                IsVisible="{Binding !IsExhausted}"
                                                 ToolTip.Tip="Aggiungi come Task e avvia"
                                                 Margin="0,0,8,0" Padding="12,6" FontSize="12"/>
                                         <!-- Delete -->

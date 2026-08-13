@@ -23,6 +23,28 @@ public partial class MainViewModel : ObservableObject
         RequestShowTimerTab?.Invoke(this, EventArgs.Empty);
     }
 
+    public void StartTimerForTask(TaskItem task, double? customDurationMinutes = null)
+    {
+        SelectedTask = task;
+        NavigateToTimerTab();
+
+        CurrentMode = SessionType.Focus;
+        _timerService.Stop();
+        SoundService.StopTicking();
+
+        var duration = customDurationMinutes.HasValue 
+            ? TimeSpan.FromMinutes(customDurationMinutes.Value) 
+            : GetCurrentDuration();
+
+        _timerService.SetDuration(duration);
+        UpdateDisplay(duration);
+        
+        IsRunning = true;
+        StartButtonText = "Pausa";
+        
+        StartSession(true);
+    }
+
     // ─── Servizi ───────────────────────────────────────────────────────────────
     private readonly TimerService _timerService;
     private readonly StatsService _statsService;
@@ -365,6 +387,24 @@ public partial class MainViewModel : ObservableObject
                     if (task != null)
                     {
                         task.CompletedPomodoros++;
+                        
+                        var studySession = await db.StudySessions.FirstOrDefaultAsync(s => s.TaskItemId == task.Id);
+                        if (studySession != null)
+                        {
+                            double totalMinutesToDeduct = _currentSession.DurationMinutes;
+                            if (SessionsInCycle + 1 >= Settings.SessionsBeforeLongBreak)
+                            {
+                                totalMinutesToDeduct += Settings.LongBreakDuration;
+                            }
+                            else
+                            {
+                                totalMinutesToDeduct += Settings.ShortBreakDuration;
+                            }
+                            
+                            studySession.DurationHours -= (totalMinutesToDeduct / 60.0);
+                            db.StudySessions.Update(studySession);
+                        }
+
                         await db.SaveChangesAsync();
                         SelectedTask.CompletedPomodoros = task.CompletedPomodoros;
                         OnPropertyChanged(nameof(SelectedTask));

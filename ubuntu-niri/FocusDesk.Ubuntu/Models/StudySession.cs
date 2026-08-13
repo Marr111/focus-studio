@@ -20,4 +20,6 @@ public class StudySession
     public double DurationHours { get; set; }
     public bool IsMappedToTask { get; set; }
     public int? TaskItemId { get; set; }
+
+    public bool IsExhausted => DurationHours <= 0;
 }

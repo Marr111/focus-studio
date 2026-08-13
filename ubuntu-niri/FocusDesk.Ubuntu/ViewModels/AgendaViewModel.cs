@@ -162,14 +162,23 @@ public partial class AgendaViewModel : ObservableObject
     [RelayCommand]
     private async Task StartAsTaskAsync(StudySession session)
     {
+        double? customDuration = null;
+        if (session.DurationHours > 0)
+        {
+            double remainingMinutes = session.DurationHours * 60.0;
+            if (remainingMinutes < _mainVm.Settings.FocusDuration)
+            {
+                customDuration = remainingMinutes;
+            }
+        }
+
         if (session.IsMappedToTask && session.TaskItemId.HasValue)
         {
             // Se già mappata, prova a selezionarla e vai al timer
             var existingTask = _tasksVm.Tasks.FirstOrDefault(t => t.Id == session.TaskItemId.Value);
             if (existingTask != null)
             {
-                _mainVm.SelectTaskCommand.Execute(existingTask);
-                _mainVm.NavigateToTimerTab();
+                _mainVm.StartTimerForTask(existingTask, customDuration);
                 return;
             }
         }
@@ -210,8 +219,7 @@ public partial class AgendaViewModel : ObservableObject
         var loadedTask = _tasksVm.Tasks.FirstOrDefault(t => t.Id == task.Id);
         if (loadedTask != null)
         {
-            _mainVm.SelectTaskCommand.Execute(loadedTask);
-            _mainVm.NavigateToTimerTab();
+            _mainVm.StartTimerForTask(loadedTask, customDuration);
         }
     }
 
