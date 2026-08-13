@@ -83,10 +83,13 @@
                         <Grid ColumnDefinitions="*,Auto">
                             <TextBlock Grid.Column="0" Text="{Binding UploadedFilesSummary}" FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource AccentFocus}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>
                             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
-                                <Button Classes="BtnGhost" Content="Carica Cartella..." Click="UploadFolder_Click"/>
-                                <Button Classes="BtnGhost" Content="Carica File..." Click="UploadFiles_Click"/>
+                                <Button Classes="BtnGhost" Content="Carica Cartella..." Click="UploadFolder_Click" IsEnabled="{Binding !IsSummarizing}"/>
+                                <Button Classes="BtnGhost" Content="Carica File..." Click="UploadFiles_Click" IsEnabled="{Binding !IsSummarizing}"/>
                             </StackPanel>
                         </Grid>
+                        
+                        <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsSummarizing}" Margin="0,4"/>
+                        <TextBlock Text="Riassunto in corso tramite IA locale..." IsVisible="{Binding IsSummarizing}" FontSize="11" Foreground="{StaticResource TextMuted}" HorizontalAlignment="Center"/>
 
                         <!-- Lista dei materiali caricati -->
                         <ItemsControl ItemsSource="{Binding UploadedMaterials}">

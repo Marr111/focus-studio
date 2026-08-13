@@ -9,6 +9,8 @@ namespace FocusDesk.Views;
 
 public partial class AIPlannerView : UserControl
 {
+    private readonly FocusDesk.Ubuntu.Services.LocalLlmSummarizer _summarizer = new();
+
     public AIPlannerView()
     {
         InitializeComponent();
@@ -37,7 +39,7 @@ public partial class AIPlannerView : UserControl
             foreach (var file in files)
             {
                 var fileItem = new UploadedMaterialItem { Name = file.Name, Path = file.Path?.ToString() ?? file.Name };
-                await ProcessSingleFileAsync(file, fileItem);
+                await ProcessSingleFileAsync(file, fileItem, vm);
                 if (fileItem.Contents.Count > 0)
                 {
                     vm.UploadedMaterials.Add(fileItem);
@@ -66,7 +68,7 @@ public partial class AIPlannerView : UserControl
             foreach (var folder in folders)
             {
                 var folderItem = new UploadedMaterialItem { Name = "Cartella: " + folder.Name, Path = folder.Path?.ToString() ?? folder.Name };
-                await ProcessFolderAsync(folder, folderItem);
+                await ProcessFolderAsync(folder, folderItem, vm);
                 if (folderItem.Contents.Count > 0)
                 {
                     vm.UploadedMaterials.Add(folderItem);
@@ -76,7 +78,7 @@ public partial class AIPlannerView : UserControl
         }
     }
 
-    private async System.Threading.Tasks.Task ProcessFolderAsync(Avalonia.Platform.Storage.IStorageFolder folder, UploadedMaterialItem item)
+    private async System.Threading.Tasks.Task ProcessFolderAsync(Avalonia.Platform.Storage.IStorageFolder folder, UploadedMaterialItem item, AIPlannerViewModel vm)
     {
         try
         {
@@ -87,12 +89,12 @@ public partial class AIPlannerView : UserControl
                     string ext = Path.GetExtension(file.Name).ToLowerInvariant();
                     if (ext == ".txt" || ext == ".md" || ext == ".csv" || ext == ".json" || ext == ".pdf")
                     {
-                        await ProcessSingleFileAsync(file, item);
+                        await ProcessSingleFileAsync(file, item, vm);
                     }
                 }
                 else if (child is Avalonia.Platform.Storage.IStorageFolder subfolder)
                 {
-                    await ProcessFolderAsync(subfolder, item);
+                    await ProcessFolderAsync(subfolder, item, vm);
                 }
             }
         }
@@ -102,11 +104,12 @@ public partial class AIPlannerView : UserControl
         }
     }
 
-    private async System.Threading.Tasks.Task ProcessSingleFileAsync(Avalonia.Platform.Storage.IStorageFile file, UploadedMaterialItem item)
+    private async System.Threading.Tasks.Task ProcessSingleFileAsync(Avalonia.Platform.Storage.IStorageFile file, UploadedMaterialItem item, AIPlannerViewModel vm)
     {
         try
         {
             await using var stream = await file.OpenReadAsync();
+            string extractedText = "";
             
             if (file.Name.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
             {
@@ -120,18 +123,35 @@ public partial class AIPlannerView : UserControl
                 {
                     textBuilder.AppendLine(page.Text);
                 }
-                item.Contents.Add($"[File PDF: {file.Name}]\n{textBuilder.ToString()}");
+                extractedText = textBuilder.ToString();
             }
             else
             {
                 using var reader = new StreamReader(stream);
-                var text = await reader.ReadToEndAsync();
-                item.Contents.Add($"[File: {file.Name}]\n{text}");
+                extractedText = await reader.ReadToEndAsync();
+            }
+
+            if (_summarizer.IsModelAvailable())
+            {
+                vm.IsSummarizing = true;
+                try
+                {
+                    var summary = await _summarizer.SummarizeTextAsync(extractedText);
+                    item.Contents.Add($"[Riassunto (Llama): {file.Name}]\n{summary}");
+                }
+                finally
+                {
+                    vm.IsSummarizing = false;
+                }
+            }
+            else
+            {
+                item.Contents.Add($"[File: {file.Name}]\n{extractedText}");
             }
         }
         catch (Exception ex)
         {
-            item.Contents.Add($"[File: {file.Name}]\nErrore lettura: {ex.Message}");
+            item.Contents.Add($"[File: {file.Name}]\nErrore lettura/riassunto: {ex.Message}");
         }
     }
 }

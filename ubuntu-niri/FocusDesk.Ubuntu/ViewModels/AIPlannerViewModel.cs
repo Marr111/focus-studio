@@ -33,6 +33,7 @@ public partial class AIPlannerViewModel : ObservableObject
 
     [ObservableProperty] private string _additionalNotes = string.Empty;
     [ObservableProperty] private bool _isGenerating = false;
+    [ObservableProperty] private bool _isSummarizing = false;
 
     public ObservableCollection<StudySession> GeneratedSessions { get; } = new();
 
